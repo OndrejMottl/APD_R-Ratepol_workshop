@@ -1,0 +1,13 @@
+name: "APD R-Ratepol workshop"
+output_dir: 'docs'
+navbar:
+  title: "APD R-Ratepol workshop"
+  left:
+    - text: "Workshop Information"
+      href: workshop_info.html
+    - text: "A step-by-step guide"
+      href: step_by_step_guide.html
+output:
+  html_document:
+    toc: FALSE
+    highlight: textmate
