@@ -66,4 +66,275 @@ library(Bchron) # age-depth modeling
 library(janitor) # string cleaning
 ```
 
+## Download a dataset from Neotoma
+
+Here we have selected the **XXX** record.
+
+
+```r
+sel_dataset_download <-
+  neotoma2::get_downloads(52406)
+
+sel_chron_control_table_download <-
+  neotoma2::chroncontrols(sel_dataset_download)
+```
+
+## Prepare the pollen counts
+
+
+```r
+sel_counts <-
+  neotoma2::samples(sel_dataset_download)
+
+sel_taxon_list_selected <-
+  neotoma2::taxa(sel_dataset_download) %>%
+  dplyr::filter(element == "pollen") %>%
+  purrr::pluck("variablename")
+
+sel_counts_selected <-
+  sel_counts %>%
+  as.data.frame() %>%
+  dplyr::mutate(sample_id = as.character(sampleid)) %>%
+  tibble::as_tibble() %>%
+  dplyr::select("sample_id", "value", "variablename") %>%
+  dplyr::filter(
+    variablename %in% sel_taxon_list_selected
+  ) %>%
+  tidyr::pivot_wider(
+    names_from = "variablename",
+    values_from = "value",
+    values_fill = 0
+  ) %>%
+  janitor::clean_names()
+
+head(sel_counts_selected)[, 1:5]
+```
+
+
+------------------------------------------------------
+ sample_id   euclea   brucea   tribulus   cassia_type 
+----------- -------- -------- ---------- -------------
+  520307       1        0         0            0      
+
+  520308       0        2         0            0      
+
+  520311       0        0         3            0      
+
+  520312       3        1         0            1      
+
+  520313       1        0         0            1      
+
+  520310       1        0         0            0      
+------------------------------------------------------
+
+Here, we strongly advocate that attention should be paid to the section of 
+ecological ecological group, as well, as harmonisation of the pollen taxa.
+However, that is not subject of this workflow.
+
+## Preparation of the levels
+
+### Sample depth
+
+Extract depth for each level
+
+
+```r
+sel_level <-
+  neotoma2::samples(sel_dataset_download) %>%
+  tibble::as_tibble() %>%
+  dplyr::mutate(sample_id = as.character(sampleid)) %>%
+  dplyr::distinct(sample_id, depth) %>%
+  dplyr::relocate(sample_id)
+
+head(sel_level)
+```
+
+
+-------------------
+ sample_id   depth 
+----------- -------
+  520307       0   
+
+  520308      47   
+
+  520311      77   
+
+  520312      97   
+
+  520313      120  
+
+  520310      420  
+-------------------
+
+
+### Age depth modelling
+
+We will recalculate new age-depth model 'de novo' using *Bchron* package. In this 
+toy example we will use only iteration multiplier (*i_multiplier*) of 0.5 to 
+reduce the computation time. However, we strongly recommend to increase it to 5
+for any normal age-depth model construction.
+
+Prepare chron.control table and run Bchron
+Here we only present few of the important steps of preparation of chron.control 
+table. There are many more potential issues issues but solving those is not 
+the focus of this workflow.
+
+
+```r
+# first check which chronologies were used
+print(sel_chron_control_table_download)
+
+# prepare the table
+sel_chron_control_table <-
+  sel_chron_control_table_download %>%
+  dplyr::filter(chronologyid == 37274) %>%
+  tibble::as_tibble() %>%
+  # here we calculate the error as the avarage as the agelimitolder and
+  #   agelimityounger
+  dplyr::mutate(
+    error = round((agelimitolder - agelimityounger) / 2)
+  ) %>%
+  # as Bchron cannot accept error of 0, we need to replace the value with 1
+  dplyr::mutate(
+    error = replace(error, error == 0, 1),
+    error = ifelse(is.na(error), 1, error)
+  ) %>%
+  # we need to specifify which calibration curve should be used for what point
+  dplyr::mutate(
+    curve = ifelse(chroncontroltype == "Radiocarbon", "intcal20", "normal")
+  ) %>%
+  tibble::column_to_rownames("chroncontrolid") %>%
+  dplyr::arrange(depth) %>%
+  dplyr::select(
+    chroncontrolage, error, depth, thickness, chroncontroltype, curve
+  )
+
+head(sel_chron_control_table)
+```
+
+
+---------------------------------------------------------------------------
+ chroncontrolage   error   depth   thickness   chroncontroltype    curve   
+----------------- ------- ------- ----------- ------------------ ----------
+        0            1       0         0           Core top        normal  
+
+       360          70      47         1         Radiocarbon      intcal20 
+
+      2879          135     198        1         Radiocarbon      intcal20 
+
+      4300          65     357.5       1         Radiocarbon      intcal20 
+
+      5480          50     453.5       1         Radiocarbon      intcal20 
+
+      8400          70     691.5       1         Radiocarbon      intcal20 
+---------------------------------------------------------------------------
+
+
+```r
+i_multiplier <- 0.1 # increase to 5
+
+n_iteration_default <- 10e3
+n_burn_default <- 2e3
+n_thin_default <- 8
+
+n_iteration <- n_iteration_default * i_multiplier
+n_burn <- n_burn_default * i_multiplier
+n_thin <- max(c(1, n_thin_default * i_multiplier))
+
+sel_bchron <-
+  Bchron::Bchronology(
+    ages = sel_chron_control_table$chroncontrolage,
+    ageSds = sel_chron_control_table$error,
+    positions = sel_chron_control_table$depth,
+    calCurves = sel_chron_control_table$curve,
+    positionThicknesses = sel_chron_control_table$thickness,
+    iterations = n_iteration,
+    burn = n_burn,
+    thin = n_thin
+  )
+```
+
+
+```r
+plot(sel_bchron)
+```
+
+![](step_by_step_guide_files/figure-html/bchron_figure-1.png)<!-- -->
+
+#### Predict ages
+
+
+```r
+age_position <-
+  Bchron:::predict.BchronologyRun(object = sel_bchron, newPositions = sel_level$depth)
+
+age_uncertainties <-
+  age_position %>%
+  as.data.frame() %>%
+  dplyr::mutate_all(., as.integer) %>%
+  as.matrix()
+
+colnames(age_uncertainties) <- sel_level$sample_id
+
+sel_level_predicted <-
+  sel_level %>%
+  dplyr::mutate(
+    age = apply(
+      age_uncertainties, 2,
+      stats::quantile,
+      probs = 0.5
+    )
+  )
+
+head(sel_level_predicted)
+```
+
+
+--------------------------
+ sample_id   depth   age  
+----------- ------- ------
+  520307       0      0   
+
+  520308      47     409  
+
+  520311      77     955  
+
+  520312      97     1296 
+
+  520313      120    1679 
+
+  520310      420    5779 
+--------------------------
+
+## Estimation Rate-of-Change
+
+Here we use the the prepared data to estimate the rate of vegetation change. We
+will use the method of the *binning with the mowing window*, *Shepard's 5-term filter* 
+as data smoothing *Chi-squared coefficient* as dissimilarity coefficient.
+This is again a toy example for a quick computation and we would recommend 
+increasing the *randomisations* to 10.000 for any real estimation. 
+
+
+```r
+sel_roc <-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    smooth_method = "none",
+    DC = "chisq",
+    Working_Units = "levels",
+    standardise = FALSE
+  )
+```
+
+
+
+```r
+RRatepol::fc_plot_RoC_sequence(
+  data_source = sel_roc
+)
+```
+
+![](step_by_step_guide_files/figure-html/roc_figure-1.png)<!-- -->
+
 
