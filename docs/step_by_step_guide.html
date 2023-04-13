@@ -16,7 +16,7 @@
 <script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -30,7 +30,7 @@
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">
@@ -265,7 +265,44 @@ $(document).ready(function () {
 </div>
 
 
-<p>Some text</p>
+<p>This workflow should show full strength of <em>RRatepol package</em>
+and serve as step by step guidance starting from downloading dataset
+from Neotoma, building age-depth models, to estimating rate-of-change
+using age uncertainty.</p>
+<p>:warning: <strong>This workflow is only meant as example</strong>:
+There are several additional steps for data reparation which should be
+done to really use the data from Neotoma!</p>
+<div id="install-packages" class="section level2">
+<h2>Install packages</h2>
+<p>Make a list of packages needed to from CRAN</p>
+<pre class="r"><code>package_list &lt;-
+  c(
+    &quot;tidyverse&quot;, # general data wrangling and visualisation
+    &quot;pander&quot;, # nice tables
+    &quot;Bchron&quot;, # age-depth modeling
+    &quot;janitor&quot;, # string cleaning
+    &quot;remotes&quot; # installing packages from GitHub
+  )</code></pre>
+<p>Install all packages from CRAN using <code>{renv}</code> package</p>
+<pre class="r"><code>lapply(
+  package_list, renv::use
+)</code></pre>
+<p>Install packages from GitHub</p>
+<pre class="r"><code># Install R-Ratepol
+remotes::install_github(&quot;HOPE-UIB-BIO/R-Ratepol-package&quot;)
+
+# Install neotoma2
+remotes::install_github(&quot;NeotomaDB/neotoma2&quot;)</code></pre>
+</div>
+<div id="attach-packages" class="section level2">
+<h2>Attach packages</h2>
+<pre class="r"><code>library(tidyverse) # general data wrangling and visualisation
+library(pander) # nice tables
+library(RRatepol) # rate-of-vegetation change
+library(neotoma2) # obtain data from Neotoma database
+library(Bchron) # age-depth modeling
+library(janitor) # string cleaning</code></pre>
+</div>
 
 
 
