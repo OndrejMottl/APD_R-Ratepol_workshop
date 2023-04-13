@@ -3,5 +3,13 @@ title: Workshop Workshop Information
 output: html_document 
 ---
 
-Some text
+## Presenters
 
+* Ondřej Mottl, University of Bergen (ondrej.mottl@gmail.com)
+* Suzette Flantua, University of Bergen (suzette.flantua@uib.no) 
+
+## When/Where 
+
+**26.4.2023 10:00 EDT** [convert timezone here](https://dateful.com/convert/est-edt-eastern-time?t=10)
+
+Zoom link: XXX
