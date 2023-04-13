@@ -10,12 +10,7 @@ output:
     theme: readable
 ---
 
-```{r chunk-setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
+
 This workflow should show full strength of *RRatepol package* and serve as step by 
 step guidance starting from downloading dataset from Neotoma, building age-depth
 models, to estimating rate-of-change using age uncertainty.
@@ -23,18 +18,12 @@ models, to estimating rate-of-change using age uncertainty.
 :warning: **This workflow is only meant as example**: There are several additional steps for data reparation which should be done to really use the data from Neotoma!
 
 ## Install packages
-```{r renv-check, include=FALSE, results='hide', warning=FALSE, message=FALSE} 
-if (
-  !require(renv)
-) {
-  install.packages("renv")
-  library(renv)
-}
-```
+
 
 Make a list of packages needed to from CRAN
 
-```{r pkg-list, results='hide', warning=FALSE, message=FALSE}
+
+```r
 package_list <-
   c(
     "tidyverse", # general data wrangling and visualisation
@@ -47,7 +36,8 @@ package_list <-
 
 Install all packages from CRAN using `{renv}` package
 
-```{r pkg-install, eval = FALSE}
+
+```r
 lapply(
   package_list, renv::use
 )
@@ -55,7 +45,8 @@ lapply(
 
 Install packages from GitHub
 
-```{r pkg-install-gh, eval = FALSE}
+
+```r
 # Install R-Ratepol
 remotes::install_github("HOPE-UIB-BIO/R-Ratepol-package")
 
@@ -65,7 +56,8 @@ remotes::install_github("NeotomaDB/neotoma2")
 
 ## Attach packages
 
-```{r pkg-attach, results='hide', warning=FALSE, message=FALSE}
+
+```r
 library(tidyverse) # general data wrangling and visualisation
 library(pander) # nice tables
 library(RRatepol) # rate-of-vegetation change
@@ -74,6 +66,4 @@ library(Bchron) # age-depth modeling
 library(janitor) # string cleaning
 ```
 
-```{r}
 
-```
