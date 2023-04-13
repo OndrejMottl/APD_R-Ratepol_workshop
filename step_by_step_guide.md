@@ -74,10 +74,7 @@ Here we have selected the **XXX** record.
 
 ```r
 sel_dataset_download <-
-  neotoma2::get_downloads(52406)
-
-sel_chron_control_table_download <-
-  neotoma2::chroncontrols(sel_dataset_download)
+  neotoma2::get_downloads(52995)
 ```
 
 ## Prepare the pollen counts
@@ -119,19 +116,19 @@ head(sel_counts_selected)[, 1:5]
 
 
 ------------------------------------------------------
- sample_id   euclea   brucea   tribulus   cassia_type 
------------ -------- -------- ---------- -------------
-  520307       1        0         0            0      
+ sample_id   montia   acaena   limosella   ranunculus 
+----------- -------- -------- ----------- ------------
+  538999       2        3          4           9      
 
-  520308       0        2         0            0      
+  539004       0        6          0           1      
 
-  520311       0        0         3            0      
+  539000       0        1          1           1      
 
-  520312       3        1         0            1      
+  539001       0        1          4           3      
 
-  520313       1        0         0            1      
+  539002       0        3          0           1      
 
-  520310       1        0         0            0      
+  539003       0        6          0           3      
 ------------------------------------------------------
 
 Here, we strongly advocate that attention should be paid to the section of  ecological ecological group, as well, as harmonisation of the pollen taxa. However, that is not subject of this workflow.
@@ -192,17 +189,17 @@ head(sel_level)
 -------------------
  sample_id   depth 
 ----------- -------
-  520307       0   
+  538999       5   
 
-  520308      47   
+  539004      18   
 
-  520311      77   
+  539000      28   
 
-  520312      97   
+  539001      38   
 
-  520313      120  
+  539002      45   
 
-  520310      420  
+  539003      58   
 -------------------
 
 ### Age depth modelling
@@ -216,14 +213,51 @@ Here we only present few of the important steps of preparation of chron.control 
 
 
 ```r
-# first check which chronologies were used
-print(sel_chron_control_table_download)
+# first get the chronologies and check which we want to use used
+sel_chron_control_table_download <-
+  neotoma2::chroncontrols(sel_dataset_download)
 
+print(sel_chron_control_table_download)
+```
+
+----------------------------------------------------------------------------
+ siteid   chronologyid   depth   thickness   agelimitolder   chroncontrolid 
+-------- -------------- ------- ----------- --------------- ----------------
+ 28408       37707        70        10           1455            115792     
+
+ 28408       37707        345       10           5970            115795     
+
+ 28408       37707       172.5      15           4210            115793     
+
+ 28408       37707        358       10           6060            115796     
+
+ 28408       37707       287.5      15           5759            115794     
+----------------------------------------------------------------------------
+
+Table: Table continues below
+
+ 
+------------------------------------------------------
+ agelimityounger   chroncontrolage   chroncontroltype 
+----------------- ----------------- ------------------
+      1105              1280           Radiocarbon    
+
+      5830              5900           Radiocarbon    
+
+      4070              4140           Radiocarbon    
+
+      5920              5990           Radiocarbon    
+
+      5139              5449           Radiocarbon    
+------------------------------------------------------
+
+
+```r
 # prepare the table
 sel_chron_control_table <-
   sel_chron_control_table_download %>%
   # here select the ID of oe of the chronology
-  dplyr::filter(chronologyid == 37274) %>%
+  dplyr::filter(chronologyid == 37707) %>%
   tibble::as_tibble() %>%
   # here we calculate the error as the avarage as the agelimitolder and
   #   agelimityounger
@@ -250,21 +284,19 @@ head(sel_chron_control_table)
 ```
 
 
----------------------------------------------------------------------------
- chroncontrolage   error   depth   thickness   chroncontroltype    curve   
------------------ ------- ------- ----------- ------------------ ----------
-        0            1       0         0           Core top        normal  
+--------------------------------------------------------------------------
+ chroncontrolage   error   depth   thickness   chroncontroltype    curve  
+----------------- ------- ------- ----------- ------------------ ---------
+      1280          175     70        10         Radiocarbon      shcal20 
 
-       360          70      47         1         Radiocarbon      intcal20 
+      4140          70     172.5      15         Radiocarbon      shcal20 
 
-      2879          135     198        1         Radiocarbon      intcal20 
+      5449          310    287.5      15         Radiocarbon      shcal20 
 
-      4300          65     357.5       1         Radiocarbon      intcal20 
+      5900          70      345       10         Radiocarbon      shcal20 
 
-      5480          50     453.5       1         Radiocarbon      intcal20 
-
-      8400          70     691.5       1         Radiocarbon      intcal20 
----------------------------------------------------------------------------
+      5990          70      358       10         Radiocarbon      shcal20 
+--------------------------------------------------------------------------
 
 In this  toy example we will use only iteration multiplier (*i_multiplier*) of 0.1 to  reduce the computation time. However, we strongly recommend to increase it to 5 for any normal age-depth model construction.
 
@@ -326,23 +358,23 @@ head(age_uncertainties, n = 8)[, 1:8]
 
 
 -----------------------------------------------------------------------
- 520307   520308   520311   520312   520313   520310   520309   520314 
+ 538999   539004   539000   539001   539002   539003   539006   539005 
 -------- -------- -------- -------- -------- -------- -------- --------
-   0       470      689      835      1002     6090     6188     6432  
+   52      137      202      266      328      452      547      1284  
 
-   0       410      959      1325     1746     5898     6168     7894  
+  783      846      895      943      977      1041     1089     1288  
 
-   0       410      1259     1413     2116     5844     6131     6463  
+  656      798      908      1018     1095     1238     1348     1749  
 
-   0       427      792      1030     1307     5011     6062     6477  
+  334      406      649      880      987      1186     1339     1711  
 
-   0       427      1085     1741     2406     5775     6228     6441  
+  1235     1262     1283     1304     1318     1345     1366     1751  
 
-   0       427      548      628      721      5775     6228     7124  
+  588      640      681      814      935      1161     1335     2595  
 
-   0       440      588      686      799      6018     6253     6335  
+  1138     1184     1220     1256     1281     1327     1363     2097  
 
-   0       440      1429     1823     2146     5775     6228     7359  
+  819      845      875      921      952      1010     1074     1717  
 -----------------------------------------------------------------------
 We can visualise those "possible ages"
 
@@ -431,17 +463,17 @@ head(sel_level_predicted)
 ---------------------------
  sample_id   depth    age  
 ----------- ------- -------
-  520307       0      -1   
+  538999       5     608.5 
 
-  520308      47      414  
+  539004      18      720  
 
-  520311      77     964.5 
+  539000      28      799  
 
-  520312      97     1286  
+  539001      38     871.5 
 
-  520313      120    1658  
+  539002      45      928  
 
-  520310      420    5777  
+  539003      58     1040  
 ---------------------------
 
 We can visualise that by drawing a red line
@@ -527,9 +559,7 @@ scenario_1 <-
 
 
 ```r
-RRatepol::fc_plot_RoC_sequence(
-  data_source = scenario_1
-)
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_1)
 ```
 
 ![](step_by_step_guide_files/figure-html/roc_sc1_vis-1.png)<!-- -->
@@ -555,9 +585,7 @@ We see that the patern change only slightly but the absolute value drop to half.
 
 
 ```r
-RRatepol::fc_plot_RoC_sequence(
-  data_source = scenario_2
-)
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_2)
 ```
 
 ![](step_by_step_guide_files/figure-html/roc_sc2_vis-1.png)<!-- -->
@@ -592,9 +620,7 @@ We will now also obtain a gray shadow, which is indicating uncertainty
 
 
 ```r
-RRatepol::fc_plot_RoC_sequence(
-  data_source = scenario_3
-)
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_3)
 ```
 
 ![](step_by_step_guide_files/figure-html/roc_sc3_vis-1.png)<!-- -->

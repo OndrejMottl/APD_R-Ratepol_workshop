@@ -307,10 +307,7 @@ library(janitor) # string cleaning</code></pre>
 <h2>Download a dataset from Neotoma</h2>
 <p>Here we have selected the <strong>XXX</strong> record.</p>
 <pre class="r"><code>sel_dataset_download &lt;-
-  neotoma2::get_downloads(52406)
-
-sel_chron_control_table_download &lt;-
-  neotoma2::chroncontrols(sel_dataset_download)</code></pre>
+  neotoma2::get_downloads(52995)</code></pre>
 </div>
 <div id="prepare-the-pollen-counts" class="section level2">
 <h2>Prepare the pollen counts</h2>
@@ -350,60 +347,60 @@ head(sel_counts_selected)[, 1:5]</code></pre>
 <col width="16%" />
 <col width="12%" />
 <col width="12%" />
-<col width="15%" />
-<col width="19%" />
+<col width="16%" />
+<col width="18%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="center">sample_id</th>
-<th align="center">euclea</th>
-<th align="center">brucea</th>
-<th align="center">tribulus</th>
-<th align="center">cassia_type</th>
+<th align="center">montia</th>
+<th align="center">acaena</th>
+<th align="center">limosella</th>
+<th align="center">ranunculus</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">520307</td>
-<td align="center">1</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">0</td>
-</tr>
-<tr class="even">
-<td align="center">520308</td>
-<td align="center">0</td>
+<td align="center">538999</td>
 <td align="center">2</td>
-<td align="center">0</td>
-<td align="center">0</td>
-</tr>
-<tr class="odd">
-<td align="center">520311</td>
-<td align="center">0</td>
-<td align="center">0</td>
 <td align="center">3</td>
-<td align="center">0</td>
+<td align="center">4</td>
+<td align="center">9</td>
 </tr>
 <tr class="even">
-<td align="center">520312</td>
-<td align="center">3</td>
-<td align="center">1</td>
+<td align="center">539004</td>
+<td align="center">0</td>
+<td align="center">6</td>
 <td align="center">0</td>
 <td align="center">1</td>
 </tr>
 <tr class="odd">
-<td align="center">520313</td>
-<td align="center">1</td>
+<td align="center">539000</td>
 <td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+</tr>
+<tr class="even">
+<td align="center">539001</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">4</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">539002</td>
+<td align="center">0</td>
+<td align="center">3</td>
 <td align="center">0</td>
 <td align="center">1</td>
 </tr>
 <tr class="even">
-<td align="center">520310</td>
-<td align="center">1</td>
+<td align="center">539003</td>
 <td align="center">0</td>
+<td align="center">6</td>
 <td align="center">0</td>
-<td align="center">0</td>
+<td align="center">3</td>
 </tr>
 </tbody>
 </table>
@@ -466,28 +463,28 @@ head(sel_level)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">520307</td>
-<td align="center">0</td>
+<td align="center">538999</td>
+<td align="center">5</td>
 </tr>
 <tr class="even">
-<td align="center">520308</td>
-<td align="center">47</td>
+<td align="center">539004</td>
+<td align="center">18</td>
 </tr>
 <tr class="odd">
-<td align="center">520311</td>
-<td align="center">77</td>
+<td align="center">539000</td>
+<td align="center">28</td>
 </tr>
 <tr class="even">
-<td align="center">520312</td>
-<td align="center">97</td>
+<td align="center">539001</td>
+<td align="center">38</td>
 </tr>
 <tr class="odd">
-<td align="center">520313</td>
-<td align="center">120</td>
+<td align="center">539002</td>
+<td align="center">45</td>
 </tr>
 <tr class="even">
-<td align="center">520310</td>
-<td align="center">420</td>
+<td align="center">539003</td>
+<td align="center">58</td>
 </tr>
 </tbody>
 </table>
@@ -504,14 +501,120 @@ to create age-depth model.</p>
 <p>Here we only present few of the important steps of preparation of
 chron.control table. There are many more potential issues issues but
 solving those is not the focus of this workflow.</p>
-<pre class="r"><code># first check which chronologies were used
-print(sel_chron_control_table_download)
+<pre class="r"><code># first get the chronologies and check which we want to use used
+sel_chron_control_table_download &lt;-
+  neotoma2::chroncontrols(sel_dataset_download)
 
-# prepare the table
+print(sel_chron_control_table_download)</code></pre>
+<table>
+<caption>Table continues below</caption>
+<colgroup>
+<col width="11%" />
+<col width="19%" />
+<col width="10%" />
+<col width="15%" />
+<col width="20%" />
+<col width="22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">siteid</th>
+<th align="center">chronologyid</th>
+<th align="center">depth</th>
+<th align="center">thickness</th>
+<th align="center">agelimitolder</th>
+<th align="center">chroncontrolid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">28408</td>
+<td align="center">37707</td>
+<td align="center">70</td>
+<td align="center">10</td>
+<td align="center">1455</td>
+<td align="center">115792</td>
+</tr>
+<tr class="even">
+<td align="center">28408</td>
+<td align="center">37707</td>
+<td align="center">345</td>
+<td align="center">10</td>
+<td align="center">5970</td>
+<td align="center">115795</td>
+</tr>
+<tr class="odd">
+<td align="center">28408</td>
+<td align="center">37707</td>
+<td align="center">172.5</td>
+<td align="center">15</td>
+<td align="center">4210</td>
+<td align="center">115793</td>
+</tr>
+<tr class="even">
+<td align="center">28408</td>
+<td align="center">37707</td>
+<td align="center">358</td>
+<td align="center">10</td>
+<td align="center">6060</td>
+<td align="center">115796</td>
+</tr>
+<tr class="odd">
+<td align="center">28408</td>
+<td align="center">37707</td>
+<td align="center">287.5</td>
+<td align="center">15</td>
+<td align="center">5759</td>
+<td align="center">115794</td>
+</tr>
+</tbody>
+</table>
+<table style="width:76%;">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">agelimityounger</th>
+<th align="center">chroncontrolage</th>
+<th align="center">chroncontroltype</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1105</td>
+<td align="center">1280</td>
+<td align="center">Radiocarbon</td>
+</tr>
+<tr class="even">
+<td align="center">5830</td>
+<td align="center">5900</td>
+<td align="center">Radiocarbon</td>
+</tr>
+<tr class="odd">
+<td align="center">4070</td>
+<td align="center">4140</td>
+<td align="center">Radiocarbon</td>
+</tr>
+<tr class="even">
+<td align="center">5920</td>
+<td align="center">5990</td>
+<td align="center">Radiocarbon</td>
+</tr>
+<tr class="odd">
+<td align="center">5139</td>
+<td align="center">5449</td>
+<td align="center">Radiocarbon</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># prepare the table
 sel_chron_control_table &lt;-
   sel_chron_control_table_download %&gt;%
   # here select the ID of oe of the chronology
-  dplyr::filter(chronologyid == 37274) %&gt;%
+  dplyr::filter(chronologyid == 37707) %&gt;%
   tibble::as_tibble() %&gt;%
   # here we calculate the error as the avarage as the agelimitolder and
   #   agelimityounger
@@ -535,14 +638,14 @@ sel_chron_control_table &lt;-
   )
 
 head(sel_chron_control_table)</code></pre>
-<table style="width:100%;">
+<table>
 <colgroup>
-<col width="23%" />
+<col width="24%" />
 <col width="10%" />
 <col width="10%" />
-<col width="15%" />
+<col width="16%" />
 <col width="25%" />
-<col width="14%" />
+<col width="13%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -556,52 +659,44 @@ head(sel_chron_control_table)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">0</td>
-<td align="center">0</td>
-<td align="center">Core top</td>
-<td align="center">normal</td>
+<td align="center">1280</td>
+<td align="center">175</td>
+<td align="center">70</td>
+<td align="center">10</td>
+<td align="center">Radiocarbon</td>
+<td align="center">shcal20</td>
 </tr>
 <tr class="even">
-<td align="center">360</td>
+<td align="center">4140</td>
 <td align="center">70</td>
-<td align="center">47</td>
-<td align="center">1</td>
+<td align="center">172.5</td>
+<td align="center">15</td>
 <td align="center">Radiocarbon</td>
-<td align="center">intcal20</td>
+<td align="center">shcal20</td>
 </tr>
 <tr class="odd">
-<td align="center">2879</td>
-<td align="center">135</td>
-<td align="center">198</td>
-<td align="center">1</td>
+<td align="center">5449</td>
+<td align="center">310</td>
+<td align="center">287.5</td>
+<td align="center">15</td>
 <td align="center">Radiocarbon</td>
-<td align="center">intcal20</td>
+<td align="center">shcal20</td>
 </tr>
 <tr class="even">
-<td align="center">4300</td>
-<td align="center">65</td>
-<td align="center">357.5</td>
-<td align="center">1</td>
+<td align="center">5900</td>
+<td align="center">70</td>
+<td align="center">345</td>
+<td align="center">10</td>
 <td align="center">Radiocarbon</td>
-<td align="center">intcal20</td>
+<td align="center">shcal20</td>
 </tr>
 <tr class="odd">
-<td align="center">5480</td>
-<td align="center">50</td>
-<td align="center">453.5</td>
-<td align="center">1</td>
-<td align="center">Radiocarbon</td>
-<td align="center">intcal20</td>
-</tr>
-<tr class="even">
-<td align="center">8400</td>
+<td align="center">5990</td>
 <td align="center">70</td>
-<td align="center">691.5</td>
-<td align="center">1</td>
+<td align="center">358</td>
+<td align="center">10</td>
 <td align="center">Radiocarbon</td>
-<td align="center">intcal20</td>
+<td align="center">shcal20</td>
 </tr>
 </tbody>
 </table>
@@ -667,96 +762,96 @@ head(age_uncertainties, n = 8)[, 1:8]</code></pre>
 </colgroup>
 <thead>
 <tr class="header">
-<th align="center">520307</th>
-<th align="center">520308</th>
-<th align="center">520311</th>
-<th align="center">520312</th>
-<th align="center">520313</th>
-<th align="center">520310</th>
-<th align="center">520309</th>
-<th align="center">520314</th>
+<th align="center">538999</th>
+<th align="center">539004</th>
+<th align="center">539000</th>
+<th align="center">539001</th>
+<th align="center">539002</th>
+<th align="center">539003</th>
+<th align="center">539006</th>
+<th align="center">539005</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">0</td>
-<td align="center">470</td>
-<td align="center">689</td>
-<td align="center">835</td>
-<td align="center">1002</td>
-<td align="center">6090</td>
-<td align="center">6188</td>
-<td align="center">6432</td>
+<td align="center">52</td>
+<td align="center">137</td>
+<td align="center">202</td>
+<td align="center">266</td>
+<td align="center">328</td>
+<td align="center">452</td>
+<td align="center">547</td>
+<td align="center">1284</td>
 </tr>
 <tr class="even">
-<td align="center">0</td>
-<td align="center">410</td>
-<td align="center">959</td>
-<td align="center">1325</td>
-<td align="center">1746</td>
-<td align="center">5898</td>
-<td align="center">6168</td>
-<td align="center">7894</td>
+<td align="center">783</td>
+<td align="center">846</td>
+<td align="center">895</td>
+<td align="center">943</td>
+<td align="center">977</td>
+<td align="center">1041</td>
+<td align="center">1089</td>
+<td align="center">1288</td>
 </tr>
 <tr class="odd">
-<td align="center">0</td>
-<td align="center">410</td>
-<td align="center">1259</td>
-<td align="center">1413</td>
-<td align="center">2116</td>
-<td align="center">5844</td>
-<td align="center">6131</td>
-<td align="center">6463</td>
+<td align="center">656</td>
+<td align="center">798</td>
+<td align="center">908</td>
+<td align="center">1018</td>
+<td align="center">1095</td>
+<td align="center">1238</td>
+<td align="center">1348</td>
+<td align="center">1749</td>
 </tr>
 <tr class="even">
-<td align="center">0</td>
-<td align="center">427</td>
-<td align="center">792</td>
-<td align="center">1030</td>
-<td align="center">1307</td>
-<td align="center">5011</td>
-<td align="center">6062</td>
-<td align="center">6477</td>
+<td align="center">334</td>
+<td align="center">406</td>
+<td align="center">649</td>
+<td align="center">880</td>
+<td align="center">987</td>
+<td align="center">1186</td>
+<td align="center">1339</td>
+<td align="center">1711</td>
 </tr>
 <tr class="odd">
-<td align="center">0</td>
-<td align="center">427</td>
-<td align="center">1085</td>
-<td align="center">1741</td>
-<td align="center">2406</td>
-<td align="center">5775</td>
-<td align="center">6228</td>
-<td align="center">6441</td>
+<td align="center">1235</td>
+<td align="center">1262</td>
+<td align="center">1283</td>
+<td align="center">1304</td>
+<td align="center">1318</td>
+<td align="center">1345</td>
+<td align="center">1366</td>
+<td align="center">1751</td>
 </tr>
 <tr class="even">
-<td align="center">0</td>
-<td align="center">427</td>
-<td align="center">548</td>
-<td align="center">628</td>
-<td align="center">721</td>
-<td align="center">5775</td>
-<td align="center">6228</td>
-<td align="center">7124</td>
-</tr>
-<tr class="odd">
-<td align="center">0</td>
-<td align="center">440</td>
 <td align="center">588</td>
-<td align="center">686</td>
-<td align="center">799</td>
-<td align="center">6018</td>
-<td align="center">6253</td>
-<td align="center">6335</td>
+<td align="center">640</td>
+<td align="center">681</td>
+<td align="center">814</td>
+<td align="center">935</td>
+<td align="center">1161</td>
+<td align="center">1335</td>
+<td align="center">2595</td>
+</tr>
+<tr class="odd">
+<td align="center">1138</td>
+<td align="center">1184</td>
+<td align="center">1220</td>
+<td align="center">1256</td>
+<td align="center">1281</td>
+<td align="center">1327</td>
+<td align="center">1363</td>
+<td align="center">2097</td>
 </tr>
 <tr class="even">
-<td align="center">0</td>
-<td align="center">440</td>
-<td align="center">1429</td>
-<td align="center">1823</td>
-<td align="center">2146</td>
-<td align="center">5775</td>
-<td align="center">6228</td>
-<td align="center">7359</td>
+<td align="center">819</td>
+<td align="center">845</td>
+<td align="center">875</td>
+<td align="center">921</td>
+<td align="center">952</td>
+<td align="center">1010</td>
+<td align="center">1074</td>
+<td align="center">1717</td>
 </tr>
 </tbody>
 </table>
@@ -839,34 +934,34 @@ head(sel_level_predicted)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">520307</td>
-<td align="center">0</td>
-<td align="center">-1</td>
+<td align="center">538999</td>
+<td align="center">5</td>
+<td align="center">608.5</td>
 </tr>
 <tr class="even">
-<td align="center">520308</td>
-<td align="center">47</td>
-<td align="center">414</td>
+<td align="center">539004</td>
+<td align="center">18</td>
+<td align="center">720</td>
 </tr>
 <tr class="odd">
-<td align="center">520311</td>
-<td align="center">77</td>
-<td align="center">964.5</td>
+<td align="center">539000</td>
+<td align="center">28</td>
+<td align="center">799</td>
 </tr>
 <tr class="even">
-<td align="center">520312</td>
-<td align="center">97</td>
-<td align="center">1286</td>
+<td align="center">539001</td>
+<td align="center">38</td>
+<td align="center">871.5</td>
 </tr>
 <tr class="odd">
-<td align="center">520313</td>
-<td align="center">120</td>
-<td align="center">1658</td>
+<td align="center">539002</td>
+<td align="center">45</td>
+<td align="center">928</td>
 </tr>
 <tr class="even">
-<td align="center">520310</td>
-<td align="center">420</td>
-<td align="center">5777</td>
+<td align="center">539003</td>
+<td align="center">58</td>
+<td align="center">1040</td>
 </tr>
 </tbody>
 </table>
@@ -942,9 +1037,7 @@ are ‘change per 500 yr’).</p>
     time_standardisation = 500,
     Working_Units = &quot;levels&quot; # here is set to use individual levels
   )</code></pre>
-<pre class="r"><code>RRatepol::fc_plot_RoC_sequence(
-  data_source = scenario_1
-)</code></pre>
+<pre class="r"><code>RRatepol::fc_plot_RoC_sequence(data_source = scenario_1)</code></pre>
 <p><img
 src="step_by_step_guide_files/figure-html/roc_sc1_vis-1.png" /><!-- --></p>
 </div>
@@ -964,9 +1057,7 @@ pollen data before analyses. Specifically, we will add
   )</code></pre>
 <p>We see that the patern change only slightly but the absolute value
 drop to half.</p>
-<pre class="r"><code>RRatepol::fc_plot_RoC_sequence(
-  data_source = scenario_2
-)</code></pre>
+<pre class="r"><code>RRatepol::fc_plot_RoC_sequence(data_source = scenario_2)</code></pre>
 <p><img
 src="step_by_step_guide_files/figure-html/roc_sc2_vis-1.png" /><!-- --></p>
 </div>
@@ -992,9 +1083,7 @@ computation and we would recommend increasing the
   )</code></pre>
 <p>We will now also obtain a gray shadow, which is indicating
 uncertainty</p>
-<pre class="r"><code>RRatepol::fc_plot_RoC_sequence(
-  data_source = scenario_3
-)</code></pre>
+<pre class="r"><code>RRatepol::fc_plot_RoC_sequence(data_source = scenario_3)</code></pre>
 <p><img
 src="step_by_step_guide_files/figure-html/roc_sc3_vis-1.png" /><!-- --></p>
 </div>

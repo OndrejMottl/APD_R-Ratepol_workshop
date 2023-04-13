@@ -90,10 +90,7 @@ Here we have selected the **XXX** record.
 
 ```{r download_of_data, results='hide', warning=FALSE, message=FALSE}
 sel_dataset_download <-
-  neotoma2::get_downloads(52406)
-
-sel_chron_control_table_download <-
-  neotoma2::chroncontrols(sel_dataset_download)
+  neotoma2::get_downloads(52995)
 ```
 
 ## Prepare the pollen counts
@@ -199,15 +196,23 @@ Chrolonogy control table contains all the dates (mostly radiocarbon) to create a
 
 Here we only present few of the important steps of preparation of chron.control table. There are many more potential issues issues but solving those is not  the focus of this workflow.
 
-```{r chron_control_prepare, results='hide', warning=FALSE}
-# first check which chronologies were used
-print(sel_chron_control_table_download)
+```{r chron_prepare, results='hide'}
+# first get the chronologies and check which we want to use used
+sel_chron_control_table_download <-
+  neotoma2::chroncontrols(sel_dataset_download)
 
+print(sel_chron_control_table_download)
+```
+```{r chron_prepare_show, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+pander::pandoc.table(head(sel_chron_control_table_download))
+```
+
+```{r chron_control_prepare, results='hide', warning=FALSE}
 # prepare the table
 sel_chron_control_table <-
   sel_chron_control_table_download %>%
   # here select the ID of oe of the chronology
-  dplyr::filter(chronologyid == 37274) %>%
+  dplyr::filter(chronologyid == 37707) %>%
   tibble::as_tibble() %>%
   # here we calculate the error as the avarage as the agelimitolder and
   #   agelimityounger
