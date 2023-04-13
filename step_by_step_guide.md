@@ -84,28 +84,34 @@ sel_chron_control_table_download <-
 
 
 ```r
+# get samples
 sel_counts <-
   neotoma2::samples(sel_dataset_download)
 
+# select only "pollen" taxa
 sel_taxon_list_selected <-
   neotoma2::taxa(sel_dataset_download) %>%
   dplyr::filter(element == "pollen") %>%
   purrr::pluck("variablename")
 
+# prepare taxa table
 sel_counts_selected <-
   sel_counts %>%
   as.data.frame() %>%
   dplyr::mutate(sample_id = as.character(sampleid)) %>%
   tibble::as_tibble() %>%
   dplyr::select("sample_id", "value", "variablename") %>%
+  # only include selected taxons
   dplyr::filter(
     variablename %in% sel_taxon_list_selected
   ) %>%
+  # tunr into wider format
   tidyr::pivot_wider(
     names_from = "variablename",
     values_from = "value",
     values_fill = 0
   ) %>%
+  # clean names
   janitor::clean_names()
 
 head(sel_counts_selected)[, 1:5]
@@ -129,6 +135,40 @@ head(sel_counts_selected)[, 1:5]
 ------------------------------------------------------
 
 Here, we strongly advocate that attention should be paid to the section of  ecological ecological group, as well, as harmonisation of the pollen taxa. However, that is not subject of this workflow.
+
+We can now try to visualise the taxa per sample_id
+
+
+```r
+sel_counts_selected %>%
+  tibble::rowid_to_column("ID") %>%
+  tidyr::pivot_longer(
+    cols = -c(sample_id, ID),
+    names_to = "taxa",
+    values_to = "n_grains"
+  ) %>%
+  ggplot2::ggplot(
+    mapping = ggplot2::aes(
+      x = ID,
+      y = n_grains,
+      fill = taxa
+    ),
+  ) +
+  ggplot2::geom_bar(
+    stat = "identity",
+    position = "fill"
+  ) +
+  ggplot2::labs(
+    x = "sample_id",
+    y = "proportion of pollen grains"
+  ) +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_blank(),
+    legend.position = "bottom"
+  )
+```
+
+![](step_by_step_guide_files/figure-html/count_vis-1.png)<!-- -->
 
 ## Preparation of the levels
 
@@ -288,21 +328,21 @@ head(age_uncertainties, n = 8)[, 1:8]
 -----------------------------------------------------------------------
  520307   520308   520311   520312   520313   520310   520309   520314 
 -------- -------- -------- -------- -------- -------- -------- --------
-   0       455      693      1385     1477     6216     6323     6447  
+   0       382      1197     1741     2136     5829     6167     6455  
 
-   0       455      1159     1249     1524     5638     6262     6727  
+   0       382      1159     1611     1789     5639     6167     6369  
 
-   0       455      756      916      1204     5710     6156     6696  
+   0       382      1564     1822     2118     5315     6036     6464  
 
-   0       455      510      547      860      5086     5986     6555  
+   0       382      929      1358     1859     5057     5746     6385  
 
-   0       455      1149     1305     1372     5805     6165     6859  
+   0       343      1344     1861     2238     5803     6289     7405  
 
-   0       455      1459     1610     1784     5802     6116     6873  
+   0       343      1480     1707     1959     5743     6269     6727  
 
-   0       455      1350     1857     1958     5941     6181     6256  
+   0       343      809      1584     2174     6078     6294     6473  
 
-   0       455      938      1040     1428     5908     6178     7394  
+   0       303      1319     1656     2131     6203     6307     6538  
 -----------------------------------------------------------------------
 We can visualise those "possible ages"
 
@@ -388,21 +428,21 @@ head(sel_level_predicted)
 ```
 
 
---------------------------
- sample_id   depth   age  
------------ ------- ------
-  520307       0      1   
+---------------------------
+ sample_id   depth    age  
+----------- ------- -------
+  520307       0      -1   
 
-  520308      47     426  
+  520308      47      431  
 
-  520311      77     933  
+  520311      77     984.5 
 
-  520312      97     1262 
+  520312      97     1320  
 
-  520313      120    1655 
+  520313      120    1680  
 
-  520310      420    5771 
---------------------------
+  520310      420    5768  
+---------------------------
 
 We can visualise that by drawing a red line
 
@@ -422,6 +462,47 @@ fig_age_uncertainties +
 ```
 
 ![](step_by_step_guide_files/figure-html/age_uncertainties_vis_median-1.png)<!-- -->
+
+### Visualisation of our data
+
+Lets make a simple pollen diagram with proportions of pollen taxa
+
+
+```r
+sel_counts_selected %>%
+  tibble::column_to_rownames("sample_id") %>%
+  RRatepol:::fc_transfer_into_proportions() %>%
+  tibble::rownames_to_column("sample_id") %>%
+  dplyr::inner_join(
+    sel_level_predicted,
+    by = dplyr::join_by(sample_id)
+  ) %>%
+  tidyr::pivot_longer(
+    cols = -c(sample_id, depth, age),
+    names_to = "taxa",
+    values_to = "proportion_of_grains"
+  ) %>%
+  ggplot2::ggplot(
+    mapping = ggplot2::aes(
+      y = age,
+      x = proportion_of_grains,
+      xmax = proportion_of_grains,
+      xmin = 0,
+      fill = taxa,
+      col = taxa
+    ),
+  ) +
+  ggplot2::geom_ribbon() +
+  ggplot2::scale_y_continuous(trans = "reverse") +
+  ggplot2::scale_x_continuous(breaks = c(0, 1)) +
+  ggplot2::facet_wrap(~taxa, nrow = 1) +
+  ggplot2::theme(
+    legend.position = "none"
+  )
+```
+
+![](step_by_step_guide_files/figure-html/vis_data_with_ages-1.png)<!-- -->
+
 
 ## Estimation Rate-of-Change
 

@@ -314,28 +314,34 @@ sel_chron_control_table_download &lt;-
 </div>
 <div id="prepare-the-pollen-counts" class="section level2">
 <h2>Prepare the pollen counts</h2>
-<pre class="r"><code>sel_counts &lt;-
+<pre class="r"><code># get samples
+sel_counts &lt;-
   neotoma2::samples(sel_dataset_download)
 
+# select only &quot;pollen&quot; taxa
 sel_taxon_list_selected &lt;-
   neotoma2::taxa(sel_dataset_download) %&gt;%
   dplyr::filter(element == &quot;pollen&quot;) %&gt;%
   purrr::pluck(&quot;variablename&quot;)
 
+# prepare taxa table
 sel_counts_selected &lt;-
   sel_counts %&gt;%
   as.data.frame() %&gt;%
   dplyr::mutate(sample_id = as.character(sampleid)) %&gt;%
   tibble::as_tibble() %&gt;%
   dplyr::select(&quot;sample_id&quot;, &quot;value&quot;, &quot;variablename&quot;) %&gt;%
+  # only include selected taxons
   dplyr::filter(
     variablename %in% sel_taxon_list_selected
   ) %&gt;%
+  # tunr into wider format
   tidyr::pivot_wider(
     names_from = &quot;variablename&quot;,
     values_from = &quot;value&quot;,
     values_fill = 0
   ) %&gt;%
+  # clean names
   janitor::clean_names()
 
 head(sel_counts_selected)[, 1:5]</code></pre>
@@ -404,6 +410,35 @@ head(sel_counts_selected)[, 1:5]</code></pre>
 <p>Here, we strongly advocate that attention should be paid to the
 section of ecological ecological group, as well, as harmonisation of the
 pollen taxa. However, that is not subject of this workflow.</p>
+<p>We can now try to visualise the taxa per sample_id</p>
+<pre class="r"><code>sel_counts_selected %&gt;%
+  tibble::rowid_to_column(&quot;ID&quot;) %&gt;%
+  tidyr::pivot_longer(
+    cols = -c(sample_id, ID),
+    names_to = &quot;taxa&quot;,
+    values_to = &quot;n_grains&quot;
+  ) %&gt;%
+  ggplot2::ggplot(
+    mapping = ggplot2::aes(
+      x = ID,
+      y = n_grains,
+      fill = taxa
+    ),
+  ) +
+  ggplot2::geom_bar(
+    stat = &quot;identity&quot;,
+    position = &quot;fill&quot;
+  ) +
+  ggplot2::labs(
+    x = &quot;sample_id&quot;,
+    y = &quot;proportion of pollen grains&quot;
+  ) +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_blank(),
+    legend.position = &quot;bottom&quot;
+  )</code></pre>
+<p><img
+src="step_by_step_guide_files/figure-html/count_vis-1.png" /><!-- --></p>
 </div>
 <div id="preparation-of-the-levels" class="section level2">
 <h2>Preparation of the levels</h2>
@@ -645,83 +680,83 @@ head(age_uncertainties, n = 8)[, 1:8]</code></pre>
 <tbody>
 <tr class="odd">
 <td align="center">0</td>
-<td align="center">455</td>
-<td align="center">693</td>
-<td align="center">1385</td>
-<td align="center">1477</td>
-<td align="center">6216</td>
-<td align="center">6323</td>
-<td align="center">6447</td>
+<td align="center">382</td>
+<td align="center">1197</td>
+<td align="center">1741</td>
+<td align="center">2136</td>
+<td align="center">5829</td>
+<td align="center">6167</td>
+<td align="center">6455</td>
 </tr>
 <tr class="even">
 <td align="center">0</td>
-<td align="center">455</td>
+<td align="center">382</td>
 <td align="center">1159</td>
-<td align="center">1249</td>
-<td align="center">1524</td>
-<td align="center">5638</td>
-<td align="center">6262</td>
+<td align="center">1611</td>
+<td align="center">1789</td>
+<td align="center">5639</td>
+<td align="center">6167</td>
+<td align="center">6369</td>
+</tr>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">382</td>
+<td align="center">1564</td>
+<td align="center">1822</td>
+<td align="center">2118</td>
+<td align="center">5315</td>
+<td align="center">6036</td>
+<td align="center">6464</td>
+</tr>
+<tr class="even">
+<td align="center">0</td>
+<td align="center">382</td>
+<td align="center">929</td>
+<td align="center">1358</td>
+<td align="center">1859</td>
+<td align="center">5057</td>
+<td align="center">5746</td>
+<td align="center">6385</td>
+</tr>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">343</td>
+<td align="center">1344</td>
+<td align="center">1861</td>
+<td align="center">2238</td>
+<td align="center">5803</td>
+<td align="center">6289</td>
+<td align="center">7405</td>
+</tr>
+<tr class="even">
+<td align="center">0</td>
+<td align="center">343</td>
+<td align="center">1480</td>
+<td align="center">1707</td>
+<td align="center">1959</td>
+<td align="center">5743</td>
+<td align="center">6269</td>
 <td align="center">6727</td>
 </tr>
 <tr class="odd">
 <td align="center">0</td>
-<td align="center">455</td>
-<td align="center">756</td>
-<td align="center">916</td>
-<td align="center">1204</td>
-<td align="center">5710</td>
-<td align="center">6156</td>
-<td align="center">6696</td>
+<td align="center">343</td>
+<td align="center">809</td>
+<td align="center">1584</td>
+<td align="center">2174</td>
+<td align="center">6078</td>
+<td align="center">6294</td>
+<td align="center">6473</td>
 </tr>
 <tr class="even">
 <td align="center">0</td>
-<td align="center">455</td>
-<td align="center">510</td>
-<td align="center">547</td>
-<td align="center">860</td>
-<td align="center">5086</td>
-<td align="center">5986</td>
-<td align="center">6555</td>
-</tr>
-<tr class="odd">
-<td align="center">0</td>
-<td align="center">455</td>
-<td align="center">1149</td>
-<td align="center">1305</td>
-<td align="center">1372</td>
-<td align="center">5805</td>
-<td align="center">6165</td>
-<td align="center">6859</td>
-</tr>
-<tr class="even">
-<td align="center">0</td>
-<td align="center">455</td>
-<td align="center">1459</td>
-<td align="center">1610</td>
-<td align="center">1784</td>
-<td align="center">5802</td>
-<td align="center">6116</td>
-<td align="center">6873</td>
-</tr>
-<tr class="odd">
-<td align="center">0</td>
-<td align="center">455</td>
-<td align="center">1350</td>
-<td align="center">1857</td>
-<td align="center">1958</td>
-<td align="center">5941</td>
-<td align="center">6181</td>
-<td align="center">6256</td>
-</tr>
-<tr class="even">
-<td align="center">0</td>
-<td align="center">455</td>
-<td align="center">938</td>
-<td align="center">1040</td>
-<td align="center">1428</td>
-<td align="center">5908</td>
-<td align="center">6178</td>
-<td align="center">7394</td>
+<td align="center">303</td>
+<td align="center">1319</td>
+<td align="center">1656</td>
+<td align="center">2131</td>
+<td align="center">6203</td>
+<td align="center">6307</td>
+<td align="center">6538</td>
 </tr>
 </tbody>
 </table>
@@ -806,32 +841,32 @@ head(sel_level_predicted)</code></pre>
 <tr class="odd">
 <td align="center">520307</td>
 <td align="center">0</td>
-<td align="center">1</td>
+<td align="center">-1</td>
 </tr>
 <tr class="even">
 <td align="center">520308</td>
 <td align="center">47</td>
-<td align="center">426</td>
+<td align="center">431</td>
 </tr>
 <tr class="odd">
 <td align="center">520311</td>
 <td align="center">77</td>
-<td align="center">933</td>
+<td align="center">984.5</td>
 </tr>
 <tr class="even">
 <td align="center">520312</td>
 <td align="center">97</td>
-<td align="center">1262</td>
+<td align="center">1320</td>
 </tr>
 <tr class="odd">
 <td align="center">520313</td>
 <td align="center">120</td>
-<td align="center">1655</td>
+<td align="center">1680</td>
 </tr>
 <tr class="even">
 <td align="center">520310</td>
 <td align="center">420</td>
-<td align="center">5771</td>
+<td align="center">5768</td>
 </tr>
 </tbody>
 </table>
@@ -850,6 +885,42 @@ head(sel_level_predicted)</code></pre>
 <p><img
 src="step_by_step_guide_files/figure-html/age_uncertainties_vis_median-1.png" /><!-- --></p>
 </div>
+</div>
+<div id="visualisation-of-our-data" class="section level3">
+<h3>Visualisation of our data</h3>
+<p>Lets make a simple pollen diagram with proportions of pollen taxa</p>
+<pre class="r"><code>sel_counts_selected %&gt;%
+  tibble::column_to_rownames(&quot;sample_id&quot;) %&gt;%
+  RRatepol:::fc_transfer_into_proportions() %&gt;%
+  tibble::rownames_to_column(&quot;sample_id&quot;) %&gt;%
+  dplyr::inner_join(
+    sel_level_predicted,
+    by = dplyr::join_by(sample_id)
+  ) %&gt;%
+  tidyr::pivot_longer(
+    cols = -c(sample_id, depth, age),
+    names_to = &quot;taxa&quot;,
+    values_to = &quot;proportion_of_grains&quot;
+  ) %&gt;%
+  ggplot2::ggplot(
+    mapping = ggplot2::aes(
+      y = age,
+      x = proportion_of_grains,
+      xmax = proportion_of_grains,
+      xmin = 0,
+      fill = taxa,
+      col = taxa
+    ),
+  ) +
+  ggplot2::geom_ribbon() +
+  ggplot2::scale_y_continuous(trans = &quot;reverse&quot;) +
+  ggplot2::scale_x_continuous(breaks = c(0, 1)) +
+  ggplot2::facet_wrap(~taxa, nrow = 1) +
+  ggplot2::theme(
+    legend.position = &quot;none&quot;
+  )</code></pre>
+<p><img
+src="step_by_step_guide_files/figure-html/vis_data_with_ages-1.png" /><!-- --></p>
 </div>
 </div>
 <div id="estimation-rate-of-change" class="section level2">
