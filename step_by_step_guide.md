@@ -360,21 +360,21 @@ head(age_uncertainties, n = 8)[, 1:8]
 -----------------------------------------------------------------------
  538999   539004   539000   539001   539002   539003   539006   539005 
 -------- -------- -------- -------- -------- -------- -------- --------
-   52      137      202      266      328      452      547      1284  
+   36      125      225      345      433      597      1209     1551  
 
-  783      846      895      943      977      1041     1089     1288  
+  878      1036     1094     1152     1192     1268     1325     1613  
 
-  656      798      908      1018     1095     1238     1348     1749  
+  864      889      931      993      1035     1157     1307     1765  
 
-  334      406      649      880      987      1186     1339     1711  
+  647      723      782      840      881      1110     1299     1821  
 
-  1235     1262     1283     1304     1318     1345     1366     1751  
+   96      574      731      810      828      1058     1249     1764  
 
-  588      640      681      814      935      1161     1335     2595  
+  637      759      853      946      1012     1134     1261     1435  
 
-  1138     1184     1220     1256     1281     1327     1363     2097  
+  1290     1352     1377     1402     1420     1452     1477     1645  
 
-  819      845      875      921      952      1010     1074     1717  
+  815      1292     1379     1404     1421     1453     1477     1522  
 -----------------------------------------------------------------------
 We can visualise those "possible ages"
 
@@ -463,17 +463,17 @@ head(sel_level_predicted)
 ---------------------------
  sample_id   depth    age  
 ----------- ------- -------
-  538999       5     608.5 
+  538999       5     545.5 
 
-  539004      18      720  
+  539004      18     663.5 
 
-  539000      28      799  
+  539000      28     763.5 
 
-  539001      38     871.5 
+  539001      38     855.5 
 
-  539002      45      928  
+  539002      45     919.5 
 
-  539003      58     1040  
+  539003      58     1039  
 ---------------------------
 
 We can visualise that by drawing a red line
@@ -581,14 +581,14 @@ scenario_2 <-
   )
 ```
 
-We see that the patern change only slightly but the absolute value drop to half. 
-
 
 ```r
 RRatepol::fc_plot_RoC_sequence(data_source = scenario_2)
 ```
 
 ![](step_by_step_guide_files/figure-html/roc_sc2_vis-1.png)<!-- -->
+
+We see that the patern change only slightly but the absolute values changed. 
 
 ### Scenario - levels - subsampling
 
@@ -624,6 +624,36 @@ RRatepol::fc_plot_RoC_sequence(data_source = scenario_3)
 ```
 
 ![](step_by_step_guide_files/figure-html/roc_sc3_vis-1.png)<!-- -->
+
+### Scenario - levels - age uncertainty
+
+Now we will add the age uncertainty. For each iteration, the package will randomly select one age-sequence from the uncertainty matrix.
+
+
+```r
+scenario_4 <-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    DC = "chisq",
+    Working_Units = "levels",
+    time_standardisation = 500,
+    smooth_method = "shep",
+    standardise = TRUE,
+    N_individuals = 150,
+    rand = set_randomisations,
+    age_uncertainty = age_uncertainties # add the uncertainty matrix
+  )
+```
+
+
+```r
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_4)
+```
+
+![](step_by_step_guide_files/figure-html/roc_sc4_vis-1.png)<!-- -->
+
+The uncertainty around values increase drastically, this si because we are randomly sampling age and taxa with small number of randomisations.
 
 
 

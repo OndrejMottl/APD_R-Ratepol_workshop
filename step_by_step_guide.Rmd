@@ -471,11 +471,11 @@ scenario_2 <-
   )
 ```
 
-We see that the patern change only slightly but the absolute value drop to half. 
-
 ```{r roc_sc2_vis, results='markup', echo=TRUE}
 RRatepol::fc_plot_RoC_sequence(data_source = scenario_2)
 ```
+
+We see that the patern change only slightly but the absolute values changed. 
 
 ### Scenario - levels - subsampling
 
@@ -506,6 +506,32 @@ We will now also obtain a gray shadow, which is indicating uncertainty
 ```{r roc_sc3_vis, results='markup', echo=TRUE}
 RRatepol::fc_plot_RoC_sequence(data_source = scenario_3)
 ```
+
+### Scenario - levels - age uncertainty
+
+Now we will add the age uncertainty. For each iteration, the package will randomly select one age-sequence from the uncertainty matrix.
+
+```{r roc_sc4, results='hide', warning=FALSE, message=FALSE}
+scenario_4 <-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    DC = "chisq",
+    Working_Units = "levels",
+    time_standardisation = 500,
+    smooth_method = "shep",
+    standardise = TRUE,
+    N_individuals = 150,
+    rand = set_randomisations,
+    age_uncertainty = age_uncertainties # add the uncertainty matrix
+  )
+```
+
+```{r roc_sc4_vis, results='markup', echo=TRUE}
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_4)
+```
+
+The uncertainty around values increase drastically, this si because we are randomly sampling age and taxa with small number of randomisations.
 
 
 ```{r}
