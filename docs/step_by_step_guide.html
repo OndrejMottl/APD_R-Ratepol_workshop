@@ -303,6 +303,391 @@ library(neotoma2) # obtain data from Neotoma database
 library(Bchron) # age-depth modeling
 library(janitor) # string cleaning</code></pre>
 </div>
+<div id="download-a-dataset-from-neotoma" class="section level2">
+<h2>Download a dataset from Neotoma</h2>
+<p>Here we have selected the <strong>XXX</strong> record.</p>
+<pre class="r"><code>sel_dataset_download &lt;-
+  neotoma2::get_downloads(52406)
+
+sel_chron_control_table_download &lt;-
+  neotoma2::chroncontrols(sel_dataset_download)</code></pre>
+</div>
+<div id="prepare-the-pollen-counts" class="section level2">
+<h2>Prepare the pollen counts</h2>
+<pre class="r"><code>sel_counts &lt;-
+  neotoma2::samples(sel_dataset_download)
+
+sel_taxon_list_selected &lt;-
+  neotoma2::taxa(sel_dataset_download) %&gt;%
+  dplyr::filter(element == &quot;pollen&quot;) %&gt;%
+  purrr::pluck(&quot;variablename&quot;)
+
+sel_counts_selected &lt;-
+  sel_counts %&gt;%
+  as.data.frame() %&gt;%
+  dplyr::mutate(sample_id = as.character(sampleid)) %&gt;%
+  tibble::as_tibble() %&gt;%
+  dplyr::select(&quot;sample_id&quot;, &quot;value&quot;, &quot;variablename&quot;) %&gt;%
+  dplyr::filter(
+    variablename %in% sel_taxon_list_selected
+  ) %&gt;%
+  tidyr::pivot_wider(
+    names_from = &quot;variablename&quot;,
+    values_from = &quot;value&quot;,
+    values_fill = 0
+  ) %&gt;%
+  janitor::clean_names()
+
+head(sel_counts_selected)[, 1:5]</code></pre>
+<table style="width:76%;">
+<colgroup>
+<col width="16%" />
+<col width="12%" />
+<col width="12%" />
+<col width="15%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample_id</th>
+<th align="center">euclea</th>
+<th align="center">brucea</th>
+<th align="center">tribulus</th>
+<th align="center">cassia_type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">520307</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">520308</td>
+<td align="center">0</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">520311</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">3</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">520312</td>
+<td align="center">3</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">520313</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+<tr class="even">
+<td align="center">520310</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<p>Here, we strongly advocate that attention should be paid to the
+section of ecological ecological group, as well, as harmonisation of the
+pollen taxa. However, that is not subject of this workflow.</p>
+</div>
+<div id="preparation-of-the-levels" class="section level2">
+<h2>Preparation of the levels</h2>
+<div id="sample-depth" class="section level3">
+<h3>Sample depth</h3>
+<p>Extract depth for each level</p>
+<pre class="r"><code>sel_level &lt;-
+  neotoma2::samples(sel_dataset_download) %&gt;%
+  tibble::as_tibble() %&gt;%
+  dplyr::mutate(sample_id = as.character(sampleid)) %&gt;%
+  dplyr::distinct(sample_id, depth) %&gt;%
+  dplyr::relocate(sample_id)
+
+head(sel_level)</code></pre>
+<table style="width:28%;">
+<colgroup>
+<col width="16%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample_id</th>
+<th align="center">depth</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">520307</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">520308</td>
+<td align="center">47</td>
+</tr>
+<tr class="odd">
+<td align="center">520311</td>
+<td align="center">77</td>
+</tr>
+<tr class="even">
+<td align="center">520312</td>
+<td align="center">97</td>
+</tr>
+<tr class="odd">
+<td align="center">520313</td>
+<td align="center">120</td>
+</tr>
+<tr class="even">
+<td align="center">520310</td>
+<td align="center">420</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="age-depth-modelling" class="section level3">
+<h3>Age depth modelling</h3>
+<p>We will recalculate new age-depth model ‘de novo’ using
+<em>Bchron</em> package. In this toy example we will use only iteration
+multiplier (<em>i_multiplier</em>) of 0.5 to reduce the computation
+time. However, we strongly recommend to increase it to 5 for any normal
+age-depth model construction.</p>
+<p>Prepare chron.control table and run Bchron Here we only present few
+of the important steps of preparation of chron.control table. There are
+many more potential issues issues but solving those is not the focus of
+this workflow.</p>
+<pre class="r"><code># first check which chronologies were used
+print(sel_chron_control_table_download)
+
+# prepare the table
+sel_chron_control_table &lt;-
+  sel_chron_control_table_download %&gt;%
+  dplyr::filter(chronologyid == 37274) %&gt;%
+  tibble::as_tibble() %&gt;%
+  # here we calculate the error as the avarage as the agelimitolder and
+  #   agelimityounger
+  dplyr::mutate(
+    error = round((agelimitolder - agelimityounger) / 2)
+  ) %&gt;%
+  # as Bchron cannot accept error of 0, we need to replace the value with 1
+  dplyr::mutate(
+    error = replace(error, error == 0, 1),
+    error = ifelse(is.na(error), 1, error)
+  ) %&gt;%
+  # we need to specifify which calibration curve should be used for what point
+  dplyr::mutate(
+    curve = ifelse(chroncontroltype == &quot;Radiocarbon&quot;, &quot;intcal20&quot;, &quot;normal&quot;)
+  ) %&gt;%
+  tibble::column_to_rownames(&quot;chroncontrolid&quot;) %&gt;%
+  dplyr::arrange(depth) %&gt;%
+  dplyr::select(
+    chroncontrolage, error, depth, thickness, chroncontroltype, curve
+  )
+
+head(sel_chron_control_table)</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="23%" />
+<col width="10%" />
+<col width="10%" />
+<col width="15%" />
+<col width="25%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">chroncontrolage</th>
+<th align="center">error</th>
+<th align="center">depth</th>
+<th align="center">thickness</th>
+<th align="center">chroncontroltype</th>
+<th align="center">curve</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">Core top</td>
+<td align="center">normal</td>
+</tr>
+<tr class="even">
+<td align="center">360</td>
+<td align="center">70</td>
+<td align="center">47</td>
+<td align="center">1</td>
+<td align="center">Radiocarbon</td>
+<td align="center">intcal20</td>
+</tr>
+<tr class="odd">
+<td align="center">2879</td>
+<td align="center">135</td>
+<td align="center">198</td>
+<td align="center">1</td>
+<td align="center">Radiocarbon</td>
+<td align="center">intcal20</td>
+</tr>
+<tr class="even">
+<td align="center">4300</td>
+<td align="center">65</td>
+<td align="center">357.5</td>
+<td align="center">1</td>
+<td align="center">Radiocarbon</td>
+<td align="center">intcal20</td>
+</tr>
+<tr class="odd">
+<td align="center">5480</td>
+<td align="center">50</td>
+<td align="center">453.5</td>
+<td align="center">1</td>
+<td align="center">Radiocarbon</td>
+<td align="center">intcal20</td>
+</tr>
+<tr class="even">
+<td align="center">8400</td>
+<td align="center">70</td>
+<td align="center">691.5</td>
+<td align="center">1</td>
+<td align="center">Radiocarbon</td>
+<td align="center">intcal20</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>i_multiplier &lt;- 0.1 # increase to 5
+
+n_iteration_default &lt;- 10e3
+n_burn_default &lt;- 2e3
+n_thin_default &lt;- 8
+
+n_iteration &lt;- n_iteration_default * i_multiplier
+n_burn &lt;- n_burn_default * i_multiplier
+n_thin &lt;- max(c(1, n_thin_default * i_multiplier))
+
+sel_bchron &lt;-
+  Bchron::Bchronology(
+    ages = sel_chron_control_table$chroncontrolage,
+    ageSds = sel_chron_control_table$error,
+    positions = sel_chron_control_table$depth,
+    calCurves = sel_chron_control_table$curve,
+    positionThicknesses = sel_chron_control_table$thickness,
+    iterations = n_iteration,
+    burn = n_burn,
+    thin = n_thin
+  )</code></pre>
+<pre class="r"><code>plot(sel_bchron)</code></pre>
+<p><img
+src="step_by_step_guide_files/figure-html/bchron_figure-1.png" /><!-- --></p>
+<div id="predict-ages" class="section level4">
+<h4>Predict ages</h4>
+<pre class="r"><code>age_position &lt;-
+  Bchron:::predict.BchronologyRun(object = sel_bchron, newPositions = sel_level$depth)
+
+age_uncertainties &lt;-
+  age_position %&gt;%
+  as.data.frame() %&gt;%
+  dplyr::mutate_all(., as.integer) %&gt;%
+  as.matrix()
+
+colnames(age_uncertainties) &lt;- sel_level$sample_id
+
+sel_level_predicted &lt;-
+  sel_level %&gt;%
+  dplyr::mutate(
+    age = apply(
+      age_uncertainties, 2,
+      stats::quantile,
+      probs = 0.5
+    )
+  )
+
+head(sel_level_predicted)</code></pre>
+<table style="width:39%;">
+<colgroup>
+<col width="16%" />
+<col width="11%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample_id</th>
+<th align="center">depth</th>
+<th align="center">age</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">520307</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">520308</td>
+<td align="center">47</td>
+<td align="center">409</td>
+</tr>
+<tr class="odd">
+<td align="center">520311</td>
+<td align="center">77</td>
+<td align="center">955</td>
+</tr>
+<tr class="even">
+<td align="center">520312</td>
+<td align="center">97</td>
+<td align="center">1296</td>
+</tr>
+<tr class="odd">
+<td align="center">520313</td>
+<td align="center">120</td>
+<td align="center">1679</td>
+</tr>
+<tr class="even">
+<td align="center">520310</td>
+<td align="center">420</td>
+<td align="center">5779</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="estimation-rate-of-change" class="section level2">
+<h2>Estimation Rate-of-Change</h2>
+<p>Here we use the the prepared data to estimate the rate of vegetation
+change. We will use the method of the <em>binning with the mowing
+window</em>, <em>Shepard’s 5-term filter</em> as data smoothing
+<em>Chi-squared coefficient</em> as dissimilarity coefficient. This is
+again a toy example for a quick computation and we would recommend
+increasing the <em>randomisations</em> to 10.000 for any real
+estimation.</p>
+<pre class="r"><code>sel_roc &lt;-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    smooth_method = &quot;none&quot;,
+    DC = &quot;chisq&quot;,
+    Working_Units = &quot;levels&quot;,
+    standardise = FALSE
+  )</code></pre>
+<pre class="r"><code>RRatepol::fc_plot_RoC_sequence(
+  data_source = sel_roc
+)</code></pre>
+<p><img
+src="step_by_step_guide_files/figure-html/roc_figure-1.png" /><!-- --></p>
+</div>
 
 
 
