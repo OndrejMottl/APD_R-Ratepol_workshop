@@ -328,21 +328,21 @@ head(age_uncertainties, n = 8)[, 1:8]
 -----------------------------------------------------------------------
  520307   520308   520311   520312   520313   520310   520309   520314 
 -------- -------- -------- -------- -------- -------- -------- --------
-   0       382      1197     1741     2136     5829     6167     6455  
+   0       470      689      835      1002     6090     6188     6432  
 
-   0       382      1159     1611     1789     5639     6167     6369  
+   0       410      959      1325     1746     5898     6168     7894  
 
-   0       382      1564     1822     2118     5315     6036     6464  
+   0       410      1259     1413     2116     5844     6131     6463  
 
-   0       382      929      1358     1859     5057     5746     6385  
+   0       427      792      1030     1307     5011     6062     6477  
 
-   0       343      1344     1861     2238     5803     6289     7405  
+   0       427      1085     1741     2406     5775     6228     6441  
 
-   0       343      1480     1707     1959     5743     6269     6727  
+   0       427      548      628      721      5775     6228     7124  
 
-   0       343      809      1584     2174     6078     6294     6473  
+   0       440      588      686      799      6018     6253     6335  
 
-   0       303      1319     1656     2131     6203     6307     6538  
+   0       440      1429     1823     2146     5775     6228     7359  
 -----------------------------------------------------------------------
 We can visualise those "possible ages"
 
@@ -433,15 +433,15 @@ head(sel_level_predicted)
 ----------- ------- -------
   520307       0      -1   
 
-  520308      47      431  
+  520308      47      414  
 
-  520311      77     984.5 
+  520311      77     964.5 
 
-  520312      97     1320  
+  520312      97     1286  
 
-  520313      120    1680  
+  520313      120    1658  
 
-  520310      420    5768  
+  520310      420    5777  
 ---------------------------
 
 We can visualise that by drawing a red line
@@ -506,33 +506,98 @@ sel_counts_selected %>%
 
 ## Estimation Rate-of-Change
 
-Here we use the the prepared data to estimate the rate of vegetation change. We
-will use the method of the *binning with the mowing window*, *Shepard's 5-term filter* 
-as data smoothing *Chi-squared coefficient* as dissimilarity coefficient.
-This is again a toy example for a quick computation and we would recommend 
-increasing the *randomisations* to 10.000 for any real estimation. 
+Here we use the the prepared data to estimate the rate of vegetation change.
+We will present several scenarios based on the available data. For all scenarios wr will be using `chisq` dissimilarity coeficient (works best for pollen data), and `time_standardisation` == 500 (this means that all ROC values are 'change per 500 yr').
+
+### Scenario - levels
+
+"Classic" approach with individual levels.
 
 
 ```r
-sel_roc <-
+scenario_1 <-
   RRatepol::fc_estimate_RoC(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    smooth_method = "none",
     DC = "chisq",
-    Working_Units = "levels",
-    standardise = FALSE
+    time_standardisation = 500,
+    Working_Units = "levels" # here is set to use individual levels
   )
 ```
 
 
-
 ```r
 RRatepol::fc_plot_RoC_sequence(
-  data_source = sel_roc
+  data_source = scenario_1
 )
 ```
 
-![](step_by_step_guide_files/figure-html/roc_figure-1.png)<!-- -->
+![](step_by_step_guide_files/figure-html/roc_sc1_vis-1.png)<!-- -->
+
+### Scenario - levels - smoothing
+
+We will use the same setting as before but now add smoothing of the pollen data before analyses. Specifically, we will add `smooth_method` = "shep" (i.e. Shepard's 5-term filter).
+
+
+```r
+scenario_2 <-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    DC = "chisq",
+    time_standardisation = 500,
+    Working_Units = "levels",
+    smooth_method = "shep" # Shepard's 5-term filter
+  )
+```
+
+We see that the patern change only slightly but the absolute value drop to half. 
+
+
+```r
+RRatepol::fc_plot_RoC_sequence(
+  data_source = scenario_2
+)
+```
+
+![](step_by_step_guide_files/figure-html/roc_sc2_vis-1.png)<!-- -->
+
+### Scenario - levels - subsampling
+
+We will now add taxa- standardization by random sub-sampling to 150 pollen grains in each level.
+In order to do that we need to increase a number of randomisations. This is again a toy example for a quick computation and we would recommend increasing the *set_randomisations* to 10.000 for any real estimation. 
+
+
+```r
+set_randomisations <- 100
+```
+
+
+```r
+scenario_3 <-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    DC = "chisq",
+    Working_Units = "levels",
+    time_standardisation = 500,
+    smooth_method = "shep",
+    standardise = TRUE, # set the taxa standardisation
+    N_individuals = 150, # set the number of pollen grains
+    rand = set_randomisations
+  )
+```
+
+We will now also obtain a gray shadow, which is indicating uncertainty
+
+
+```r
+RRatepol::fc_plot_RoC_sequence(
+  data_source = scenario_3
+)
+```
+
+![](step_by_step_guide_files/figure-html/roc_sc3_vis-1.png)<!-- -->
+
 
 

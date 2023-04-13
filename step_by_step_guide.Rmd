@@ -428,30 +428,80 @@ sel_counts_selected %>%
 
 ## Estimation Rate-of-Change
 
-Here we use the the prepared data to estimate the rate of vegetation change. We
-will use the method of the *binning with the mowing window*, *Shepard's 5-term filter* 
-as data smoothing *Chi-squared coefficient* as dissimilarity coefficient.
-This is again a toy example for a quick computation and we would recommend 
-increasing the *randomisations* to 10.000 for any real estimation. 
+Here we use the the prepared data to estimate the rate of vegetation change.
+We will present several scenarios based on the available data. For all scenarios wr will be using `chisq` dissimilarity coeficient (works best for pollen data), and `time_standardisation` == 500 (this means that all ROC values are 'change per 500 yr').
 
-```{r roc, results='hide', warning=FALSE, message=FALSE}
-sel_roc <-
+### Scenario - levels
+
+"Classic" approach with individual levels.
+
+```{r roc_sc1, results='hide', warning=FALSE, message=FALSE}
+scenario_1 <-
   RRatepol::fc_estimate_RoC(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    smooth_method = "none",
     DC = "chisq",
-    Working_Units = "levels",
-    standardise = FALSE
+    time_standardisation = 500,
+    Working_Units = "levels" # here is set to use individual levels
   )
 ```
 
-
-```{r roc_figure, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(
-  data_source = sel_roc
-)
+```{r roc_sc1_vis, results='markup', echo=TRUE}
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_1)
 ```
+
+### Scenario - levels - smoothing
+
+We will use the same setting as before but now add smoothing of the pollen data before analyses. Specifically, we will add `smooth_method` = "shep" (i.e. Shepard's 5-term filter).
+
+```{r roc_sc2, results='hide', warning=FALSE, message=FALSE}
+scenario_2 <-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    DC = "chisq",
+    time_standardisation = 500,
+    Working_Units = "levels",
+    smooth_method = "shep" # Shepard's 5-term filter
+  )
+```
+
+We see that the patern change only slightly but the absolute value drop to half. 
+
+```{r roc_sc2_vis, results='markup', echo=TRUE}
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_2)
+```
+
+### Scenario - levels - subsampling
+
+We will now add taxa- standardization by random sub-sampling to 150 pollen grains in each level.
+In order to do that we need to increase a number of randomisations. This is again a toy example for a quick computation and we would recommend increasing the *set_randomisations* to 10.000 for any real estimation. 
+
+```{r roc_sc3_rand, results='hide', warning=FALSE, message=FALSE}
+set_randomisations <- 100
+```
+
+```{r roc_sc3, results='hide', warning=FALSE, message=FALSE}
+scenario_3 <-
+  RRatepol::fc_estimate_RoC(
+    data_source_community = sel_counts_selected,
+    data_source_age = sel_level_predicted,
+    DC = "chisq",
+    Working_Units = "levels",
+    time_standardisation = 500,
+    smooth_method = "shep",
+    standardise = TRUE, # set the taxa standardisation
+    N_individuals = 150, # set the number of pollen grains
+    rand = set_randomisations
+  )
+```
+
+We will now also obtain a gray shadow, which is indicating uncertainty
+
+```{r roc_sc3_vis, results='markup', echo=TRUE}
+RRatepol::fc_plot_RoC_sequence(data_source = scenario_3)
+```
+
 
 ```{r}
 
