@@ -18,7 +18,6 @@ This workflow should show the full strength of the [*RRatepol package*](https://
 
 ## Install packages
 
-
 Make a list of packages needed from CRAN
 
 
@@ -33,12 +32,12 @@ package_list <-
   )
 ```
 
-Install all packages from CRAN using the `{renv}` package
+Install all packages from CRAN
 
 
 ```r
 lapply(
-  package_list, renv::use
+  package_list, utils::install.packages
 )
 ```
 
@@ -69,12 +68,12 @@ library(janitor) # string cleaning
 
 ## Download a dataset from Neotoma
 
-Here we have selected the **XXX** record.
+Here we have selected the **Ahakagyezi Swamp** record.
 
 
 ```r
 sel_dataset_download <-
-  neotoma2::get_downloads(52995)
+  neotoma2::get_downloads(50216)
 ```
 
 ## Prepare the pollen counts
@@ -115,21 +114,21 @@ head(sel_counts_selected)[, 1:5]
 ```
 
 
-------------------------------------------------------
- sample_id   montia   acaena   limosella   ranunculus 
------------ -------- -------- ----------- ------------
-  538999       2        3          4           9      
+--------------------------------------------------------------------------------
+ sample_id   rhamnaceae   combretaceae_melastomataceae   ranunculaceae   prunus 
+----------- ------------ ------------------------------ --------------- --------
+  500543         1                     1                       1           1    
 
-  539004       0        6          0           1      
+  500544         4                     0                       0           2    
 
-  539000       0        1          1           1      
+  500545         6                     1                       0           0    
 
-  539001       0        1          4           3      
+  500547         4                     0                       0           0    
 
-  539002       0        3          0           1      
+  500548         7                     0                       0           0    
 
-  539003       0        6          0           3      
-------------------------------------------------------
+  500549         3                     1                       0           1    
+--------------------------------------------------------------------------------
 
 Here, we strongly advocate that attention should be paid to the section of the ecological group, as well, as the harmonisation of the pollen taxa. However, that is not the subject of this workflow.
 
@@ -161,7 +160,7 @@ sel_counts_selected %>%
   ) +
   ggplot2::theme(
     axis.text.x = ggplot2::element_blank(),
-    legend.position = "bottom"
+    legend.position = "none"
   )
 ```
 
@@ -189,17 +188,17 @@ head(sel_level)
 -------------------
  sample_id   depth 
 ----------- -------
-  538999       5   
+  500543      703  
 
-  539004      18   
+  500544      753  
 
-  539000      28   
+  500545      803  
 
-  539001      38   
+  500547      853  
 
-  539002      45   
+  500548      908  
 
-  539003      58   
+  500549      953  
 -------------------
 
 ### Age-depth modelling
@@ -223,15 +222,17 @@ print(sel_chron_control_table_download)
 ----------------------------------------------------------------------------
  siteid   chronologyid   depth   thickness   agelimitolder   chroncontrolid 
 -------- -------------- ------- ----------- --------------- ----------------
- 28408       37707        70        10           1455            115792     
+ 27552       35429        330       20           1150            110443     
 
- 28408       37707        345       10           5970            115795     
+ 27552       35429       1892       16           14860           110449     
 
- 28408       37707       172.5      15           4210            115793     
+ 27552       35429       1175       30           5250            110446     
 
- 28408       37707        358       10           6060            115796     
+ 27552       35429       2060       14           15750           110451     
 
- 28408       37707       287.5      15           5759            115794     
+ 27552       35429       2235       30           24200           110454     
+
+ 27552       35429       2087       27           18890           110453     
 ----------------------------------------------------------------------------
 
 Table: Table continues below
@@ -240,15 +241,17 @@ Table: Table continues below
 ------------------------------------------------------
  agelimityounger   chroncontrolage   chroncontroltype 
 ----------------- ----------------- ------------------
-      1105              1280           Radiocarbon    
+      1010              1080           Radiocarbon    
 
-      5830              5900           Radiocarbon    
+      14660             14760          Radiocarbon    
 
-      4070              4140           Radiocarbon    
+      5110              5180           Radiocarbon    
 
-      5920              5990           Radiocarbon    
+      15530             15640          Radiocarbon    
 
-      5139              5449           Radiocarbon    
+      23680             23940          Radiocarbon    
+
+      18650             18770          Radiocarbon    
 ------------------------------------------------------
 
 
@@ -257,7 +260,7 @@ Table: Table continues below
 sel_chron_control_table <-
   sel_chron_control_table_download %>%
   # Here select the ID of one of the chronology
-  dplyr::filter(chronologyid == 37707) %>%
+  dplyr::filter(chronologyid == 35430) %>%
   tibble::as_tibble() %>%
   # Here we calculate the error as the average of the age `limitolder` and
   #   `agelimityounger`
@@ -287,15 +290,17 @@ head(sel_chron_control_table)
 --------------------------------------------------------------------------
  chroncontrolage   error   depth   thickness   chroncontroltype    curve  
 ----------------- ------- ------- ----------- ------------------ ---------
-      1280          175     70        10         Radiocarbon      shcal20 
+      1080          70      330       20         Radiocarbon      shcal20 
 
-      4140          70     172.5      15         Radiocarbon      shcal20 
+      3070          70      675       30         Radiocarbon      shcal20 
 
-      5449          310    287.5      15         Radiocarbon      shcal20 
+      3360          70      820       20         Radiocarbon      shcal20 
 
-      5900          70      345       10         Radiocarbon      shcal20 
+      5180          70     1175       30         Radiocarbon      shcal20 
 
-      5990          70      358       10         Radiocarbon      shcal20 
+      5870          90     1335       20         Radiocarbon      shcal20 
+
+      9580          60     1535       30         Radiocarbon      shcal20 
 --------------------------------------------------------------------------
 
 In this just a toy example we will use only the iteration multiplier (`i_multiplier`) of `0.1` to reduce the computation time. However, we strongly recommend increasing it to 5 for any normal age-depth model construction.
@@ -358,23 +363,23 @@ head(age_uncertainties, n = 8)[, 1:8]
 
 
 -----------------------------------------------------------------------
- 538999   539004   539000   539001   539002   539003   539006   539005 
+ 500543   500544   500545   500547   500548   500549   500550   500546 
 -------- -------- -------- -------- -------- -------- -------- --------
-  1206     1243     1271     1298     1318     1354     1382     2269  
+  3172     3358     3544     3864     4292     4643     4908     4990  
 
-  562      666      746      851      969      1187     1354     1751  
+  3353     3463     3495     3818     4171     4459     4748     4844  
 
-  729      852      947      1050     1147     1328     1467     2098  
+  3393     3532     3588     4801     4958     5046     5134     5163  
 
-  249      311      359      406      440      507      1314     1797  
+  3236     3430     3562     3826     4192     4491     4790     4890  
 
-  1038     1100     1310     1362     1399     1470     1626     2028  
+  3003     3167     3473     3758     4009     4219     4441     4515  
 
-  1613     1639     1830     1858     1964     2077     2110     2540  
+  3211     3278     3344     3725     3922     4083     4245     4298  
 
-  1441     1654     1785     1895     1942     2000     2104     2474  
+  3368     3436     3561     3629     3665     3695     3724     3734  
 
-  1484     1599     1708     1841     2025     2256     2323     2943  
+  3410     3448     3560     4121     4427     4646     4819     4877  
 -----------------------------------------------------------------------
 We can visualise those "possible ages"
 
@@ -395,7 +400,7 @@ data_age_uncertainties <-
   )
 ```
 
-Each line is a single potential age-depth result
+Each line is a single potential age-depth result. Green points represent the radiocarbon dates.
 
 
 ```r
@@ -414,7 +419,25 @@ Each line is a single potential age-depth result
       ),
       alpha = 0.05,
       linewidth = 0.1
-    )
+    ) +
+    ggplot2::geom_hline(
+      yintercept = sel_level$depth,
+      lty = 2,
+      color = "gray50",
+      alpha = 0.5,
+      linewidth = 0.1
+    ) +
+    ggplot2::geom_point(
+      data = sel_chron_control_table,
+      mapping = ggplot2::aes(
+        x = chroncontrolage
+      ),
+      color = "green",
+      shape = 15,
+      size = 3
+    ) +
+    ggplot2::scale_y_continuous(trans = "reverse") +
+    ggplot2::scale_x_continuous(trans = "reverse")
 )
 ```
 
@@ -435,9 +458,13 @@ data_age_uncertainties %>%
   ggplot2::geom_hline(
     yintercept = sel_level$depth,
     lty = 2,
-    color = "gray50"
+    color = "gray50",
+    alpha = 0.5,
+    linewidth = 0.1
   ) +
-  ggplot2::geom_boxplot()
+  ggplot2::geom_boxplot(
+    outlier.shape = NA
+  )
 ```
 
 ![](step_by_step_guide_files/figure-html/age_uncertainties_vis_boxplot-1.png)<!-- -->
@@ -460,21 +487,21 @@ head(sel_level_predicted)
 ```
 
 
----------------------------
- sample_id   depth    age  
------------ ------- -------
-  538999       5      423  
+--------------------------
+ sample_id   depth   age  
+----------- ------- ------
+  500543      703    3276 
 
-  539004      18     568.5 
+  500544      753    3406 
 
-  539000      28     682.5 
+  500545      803    3542 
 
-  539001      38     778.5 
+  500547      853    3872 
 
-  539002      45      845  
+  500548      908    4206 
 
-  539003      58     991.5 
----------------------------
+  500549      953    4488 
+--------------------------
 
 We can visualise that by drawing a red line
 
@@ -489,7 +516,7 @@ fig_age_uncertainties +
   ggplot2::geom_line(
     data = sel_level_predicted,
     color = "red",
-    size = 1
+    linewidth = 1
   )
 ```
 
@@ -514,6 +541,14 @@ sel_counts_selected %>%
     names_to = "taxa",
     values_to = "proportion_of_grains"
   ) %>%
+  dplyr::group_by(taxa) %>%
+  # Calculate the average proportion of grains
+  dplyr::mutate(
+    avg_prop = mean(proportion_of_grains)
+  ) %>%
+  # only keep te main taxa
+  dplyr::filter(avg_prop > 0.01) %>%
+  dplyr::ungroup() %>%
   ggplot2::ggplot(
     mapping = ggplot2::aes(
       y = age,
@@ -594,6 +629,7 @@ We see that the pattern changed only slightly but the absolute values changed.
 
 We will now add taxa- standardization by random sub-sampling to 150 pollen grains in each level.
 In order to do that we need to increase the number of randomisations. This is again a toy example for a quick computation and we would recommend increasing the *set_randomisations* to 10.000 for any real estimation. 
+To speed the procces up, we can also set `use_parallel` == `TRUE`, which will use all cores of a computer.
 
 
 ```r
@@ -612,7 +648,8 @@ scenario_3 <-
     smooth_method = "shep",
     standardise = TRUE, # set the taxa standardisation
     N_individuals = 150, # set the number of pollen grains
-    rand = set_randomisations
+    rand = set_randomisations, # set number of randomisations
+    use_parallel = TRUE # do use parallel computing
   )
 ```
 
@@ -642,6 +679,7 @@ scenario_4 <-
     standardise = TRUE,
     N_individuals = 150,
     rand = set_randomisations,
+    use_parallel = TRUE,
     age_uncertainty = age_uncertainties # Add the uncertainty matrix
   )
 ```
@@ -661,6 +699,7 @@ In order to get rid of the effect of uneven distribution of levels, we can bin t
 Specifically, we will change the `Working_Units` to `"bins"` to select 500 years bins instead of the individual levels.
 Note that one level is randomly selected as a representation of that time bin.
 
+
 ```r
 scenario_5 <-
   RRatepol::fc_estimate_RoC(
@@ -674,6 +713,7 @@ scenario_5 <-
     standardise = TRUE,
     N_individuals = 150,
     rand = set_randomisations,
+    use_parallel = TRUE,
     age_uncertainty = age_uncertainties
   )
 ```
@@ -706,6 +746,7 @@ scenario_6 <-
     standardise = TRUE,
     N_individuals = 150,
     rand = set_randomisations,
+    use_parallel = TRUE,
     age_uncertainty = age_uncertainties
   )
 ```
@@ -737,8 +778,7 @@ Plot the estimates with showing both the peak-points.
 ```r
 RRatepol::fc_plot_RoC_sequence(
   data_source = scenario_6_peak,
-  Peaks = TRUE,
-  trend = "trend_non_linear"
+  Peaks = TRUE
 )
 ```
 
