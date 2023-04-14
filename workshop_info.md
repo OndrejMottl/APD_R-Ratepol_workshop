@@ -1,22 +1,29 @@
----
-title: Workshop Workshop Information
-output:
-  rmarkdown::html_document:
-    fig_width: 7
-    fig_height: 6
-    fig_caption: yes
-    keep_md: yes
-    self_contained: yes
-    theme: readable
----
+The workshop is going to be taken place online via ZOOM link.
+
+<br>
+
+## When/Where
+
+### **26.4.2023 10:00 EDT** ([convert timezone here](https://dateful.com/convert/est-edt-eastern-time?t=10))
+
+### [**Zoom link**](https://psu.zoom.us/j/99502354850?pwd=YW5lUFF2K0hjKzhuVGZRenVsZzBTQT09)
+
+<br>
 
 ## Presenters
 
-* Ondřej Mottl, University of Bergen (ondrej.mottl@gmail.com) [![orcid](https://img.shields.io/badge/orcid-0000--0002--9796--5081-brightgreen.svg)](https://orcid.org/0000-0002-9796-5081)
-* Suzette Flantua, University of Bergen (suzette.flantua@uib.no) [![orcid](https://img.shields.io/badge/orcid-0000--0001--6526--3037-brightgreen.svg)](https://orcid.org/0000-0001-6526-3037)
+-   ### Ondřej Mottl <img src="https://www.uib.no/sites/w3.uib.no/files/styles/user_thumbnail/public/pictures/picture-396270-1579792833.jpg?itok=hez3oHo-" align="right" width="120" />
 
-## When/Where 
+    -   (<ondrej.mottl@gmail.com>)
+        [![orcid](https://img.shields.io/badge/orcid-0000--0002--9796--5081-brightgreen.svg)](https://orcid.org/0000-0002-9796-5081)
+    -   University of Bergen
 
-**26.4.2023 10:00 EDT** [convert timezone here](https://dateful.com/convert/est-edt-eastern-time?t=10)
+<br>
 
-Zoom link: XXX
+<br>
+
+-   ### Suzette Flantua <img src="https://www.uib.no/sites/w3.uib.no/files/styles/user_thumbnail/public/pictures/picture-388168-1536217906.jpg?itok=yqGLK7Kg" align="right" width="120" />
+
+    -   (<suzette.flantua@uib.no>)
+        [![orcid](https://img.shields.io/badge/orcid-0000--0001--6526--3037-brightgreen.svg)](https://orcid.org/0000-0001-6526-3037)
+    -   University of Bergen
