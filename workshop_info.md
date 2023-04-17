@@ -1,4 +1,4 @@
-The workshop is going to be taken place online via ZOOM link.
+The workshop is going to take place online via ZOOM link.
 
 <br>
 
