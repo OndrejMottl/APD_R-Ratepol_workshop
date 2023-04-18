@@ -1,5 +1,5 @@
 ---
-title: Workshop Workshop Information
+title: Workshop Information
 output:
   rmarkdown::html_document:
     fig_width: 7
