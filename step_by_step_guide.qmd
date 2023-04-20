@@ -1,13 +1,11 @@
 ---
 title: Step-by-step guide
-output: 
-  rmarkdown::html_document:
-    fig_width: 7
-    fig_height: 6
-    fig_caption: yes
-    keep_md: yes
-    self_contained: yes
-    theme: readable
+format: 
+  gfm:
+    fig-width: 7
+    fig-height: 6
+    wrap: none
+
 ---
 
 ```{r chunk-setup, include=FALSE}
@@ -59,7 +57,7 @@ remotes::install_github("NeotomaDB/neotoma2")
 ```{r pkg-attach, results='hide', warning=FALSE, message=FALSE}
 library(tidyverse) # general data wrangling and visualisation
 library(pander) # nice tables
-library(RRatepol) # rate-of-vegetation change
+library(RRatepol) # rate-of-vegetation change ! v1.2.0 !
 library(neotoma2) # obtain data from the Neotoma database
 library(Bchron) # age-depth modeling
 library(janitor) # string cleaning
@@ -416,7 +414,7 @@ Let's now make a simple pollen diagram with proportions of the main pollen taxa 
 ```{r vis_data_with_ages}
 sel_counts_selected %>%
   tibble::column_to_rownames("sample_id") %>%
-  RRatepol:::fc_transfer_into_proportions() %>%
+  RRatepol:::transform_into_proportions() %>%
   tibble::rownames_to_column("sample_id") %>%
   dplyr::inner_join(
     sel_level_predicted,
@@ -466,17 +464,17 @@ This is the "Classic" approach that uses each sampled depth in a pollen record (
 
 ```{r roc_sc1, results='hide', warning=FALSE, message=FALSE}
 scenario_1 <-
-  RRatepol::fc_estimate_RoC(
+  RRatepol::estimate_roc(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    DC = "chisq",
+    dissimilarity_coefficient = "chisq",
     time_standardisation = 500,
-    Working_Units = "levels" # here is set to use individual levels
+    working_units = "levels" # here is set to use individual levels
   )
 ```
 
 ```{r roc_sc1_vis, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(data_source = scenario_1)
+RRatepol::plot_roc(data_source = scenario_1)
 ```
 
 ### Scenario 2 - Estimating RoC for each level with smoothing of data
@@ -485,18 +483,18 @@ We do the same as in Scenario 1 but now we smooth the pollen data before calcula
 
 ```{r roc_sc2, results='hide', warning=FALSE, message=FALSE}
 scenario_2 <-
-  RRatepol::fc_estimate_RoC(
+  RRatepol::estimate_roc(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    DC = "chisq",
+    dissimilarity_coefficient = "chisq",
     time_standardisation = 500,
-    Working_Units = "levels",
+    working_units = "levels",
     smooth_method = "shep" # Shepard's 5-term filter
   )
 ```
 
 ```{r roc_sc2_vis, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(data_source = scenario_2)
+RRatepol::plot_roc(data_source = scenario_2)
 ```
 
 We see that the pattern changed only slightly but the absolute RoC scores changed (x-axis). 
@@ -512,15 +510,15 @@ set_randomisations <- 100
 
 ```{r roc_sc3, results='hide', warning=FALSE, message=FALSE}
 scenario_3 <-
-  RRatepol::fc_estimate_RoC(
+  RRatepol::estimate_roc(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    DC = "chisq",
-    Working_Units = "levels",
+    dissimilarity_coefficient = "chisq",
+    working_units = "levels",
     time_standardisation = 500,
     smooth_method = "shep",
     standardise = TRUE, # set the taxa standardisation
-    N_individuals = 150, # set the number of pollen grains
+    n_individuals = 150, # set the number of pollen grains
     rand = set_randomisations, # set number of randomisations
     use_parallel = TRUE # do use parallel computing
   )
@@ -529,7 +527,7 @@ scenario_3 <-
 We will now also visualize uncertainty around the RoC scores shown by a grey shadow.
 
 ```{r roc_sc3_vis, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(data_source = scenario_3)
+RRatepol::plot_roc(data_source = scenario_3)
 ```
 
 ### Scenario 4 - Estimating RoC for each level subsampling data and calculating age uncertainties
@@ -538,15 +536,15 @@ For RoC analysis, it is important to consider age uncertainties. For each iterat
 
 ```{r roc_sc4, results='hide', warning=FALSE, message=FALSE}
 scenario_4 <-
-  RRatepol::fc_estimate_RoC(
+  RRatepol::estimate_roc(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    DC = "chisq",
-    Working_Units = "levels",
+    dissimilarity_coefficient = "chisq",
+    working_units = "levels",
     time_standardisation = 500,
     smooth_method = "shep",
     standardise = TRUE,
-    N_individuals = 150,
+    n_individuals = 150,
     rand = set_randomisations,
     use_parallel = TRUE,
     age_uncertainty = age_uncertainties # Add the uncertainty matrix
@@ -554,7 +552,7 @@ scenario_4 <-
 ```
 
 ```{r roc_sc4_vis, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(data_source = scenario_4)
+RRatepol::plot_roc(data_source = scenario_4)
 ```
 
 Here you can see that the uncertainty (grey shadow) around the RoC scores (black line) increased drastically. This is because we are randomly sampling age and taxa with a small number of randomisations.
@@ -562,20 +560,20 @@ Here you can see that the uncertainty (grey shadow) around the RoC scores (black
 ### Scenario 5 - Estimating RoC per bin
 
 In order to get rid of the effect of uneven distribution of sampled depths (i.e. levels) in a fossil pollen record, we can bin the data.
-Specifically, we will change the `Working_Units` from single levels to `"bins"`. Here we select bins of 500 years each instead of the individual levels. Note that one level is randomly selected as a representation of that time bin.
+Specifically, we will change the `working_units` from single levels to `"bins"`. Here we select bins of 500 years each instead of the individual levels. Note that one level is randomly selected as a representation of that time bin.
 
 ```{r roc_sc5, results='hide', warning=FALSE, message=FALSE}
 scenario_5 <-
-  RRatepol::fc_estimate_RoC(
+  RRatepol::estimate_roc(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    DC = "chisq",
-    Working_Units = "bins", # change the "bins"
+    dissimilarity_coefficient = "chisq",
+    working_units = "bins", # change the "bins"
     bin_size = 500, # sie of a time bin
     time_standardisation = 500,
     smooth_method = "shep",
     standardise = TRUE,
-    N_individuals = 150,
+    n_individuals = 150,
     rand = set_randomisations,
     use_parallel = TRUE,
     age_uncertainty = age_uncertainties
@@ -583,7 +581,7 @@ scenario_5 <-
 ```
 
 ```{r roc_sc5_vis, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(data_source = scenario_5)
+RRatepol::plot_roc(data_source = scenario_5)
 ```
 
 We see a substantial increase in temporal uncertainty around the RoC scores (grey shadow), indicating a loss of temporal precision.
@@ -594,17 +592,17 @@ In order to reduce the temporal uncertainty and improve temporal precision, we c
 
 ```{r roc_sc6, results='hide', warning=FALSE, message=FALSE}
 scenario_6 <-
-  RRatepol::fc_estimate_RoC(
+  RRatepol::estimate_roc(
     data_source_community = sel_counts_selected,
     data_source_age = sel_level_predicted,
-    DC = "chisq",
-    Working_Units = "MW", # change the "MW" to apply the "moving window"
+    dissimilarity_coefficient = "chisq",
+    working_units = "MW", # change the "MW" to apply the "moving window"
     bin_size = 500,
-    Number_of_shifts = 5, # number of shifts
+    number_of_shifts = 5, # number of shifts
     time_standardisation = 500,
     smooth_method = "shep",
     standardise = TRUE,
-    N_individuals = 150,
+    n_individuals = 150,
     rand = set_randomisations,
     use_parallel = TRUE,
     age_uncertainty = age_uncertainties
@@ -612,7 +610,7 @@ scenario_6 <-
 ```
 
 ```{r roc_sc6_vis, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(data_source = scenario_6)
+RRatepol::plot_roc(data_source = scenario_6)
 ```
 
 ### Scenario 6 B - Estimating RoC with the new "Moving-window" approach and detecting peak points
@@ -621,7 +619,7 @@ Throughout the record, there can be periods when the RoC will substantially chan
 
 ```{r peak_points, results='hide', warning=FALSE}
 scenario_6_peak <-
-  RRatepol::fc_detect_peak_points(
+  RRatepol::detect_peak_points(
     data_source = scenario_6,
     sel_method = "trend_non_linear"
   )
@@ -630,8 +628,8 @@ scenario_6_peak <-
 Now we will plot the RoC estimates showing the peak-points. So here we can see that there were rates of vegetation change throughout the record but only at certain moments in time (green dots - peak points) these changes were significant. There you go!
 
 ```{r peak_points_vis, results='markup', echo=TRUE}
-RRatepol::fc_plot_RoC_sequence(
+RRatepol::plot_roc(
   data_source = scenario_6_peak,
-  Peaks = TRUE
+  peaks = TRUE
 )
 ```
