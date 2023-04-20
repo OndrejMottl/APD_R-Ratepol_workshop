@@ -1,13 +1,11 @@
 ---
 title: Workshop Information
-output:
-  rmarkdown::html_document:
-    fig_width: 7
-    fig_height: 6
-    fig_caption: yes
-    keep_md: yes
-    self_contained: yes
-    theme: readable
+format: 
+  gfm:
+    fig-width: 7
+    fig-height: 6
+    wrap: none
+
 ---
 
 The workshop is going to take place online via ZOOM link.
