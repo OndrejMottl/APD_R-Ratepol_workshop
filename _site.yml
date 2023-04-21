@@ -5,6 +5,8 @@ navbar:
   left:
     - text: "Workshop Information"
       href: workshop_info.html
+    - text: "Pre-workshop"
+      href: pre_workshop.html      
     - text: "A step-by-step guide"
       href: step_by_step_guide.html
 output:
