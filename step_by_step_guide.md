@@ -7,36 +7,7 @@ This workflow should show the full strength of the [*RRatepol package*](https://
 
 ## Install packages
 
-Make a list of packages needed from CRAN
-
-``` r
-package_list <-
-  c(
-    "tidyverse", # general data wrangling and visualisation
-    "pander", # nice tables
-    "Bchron", # age-depth modelling
-    "janitor", # string cleaning
-    "remotes" # installing packages from GitHub
-  )
-```
-
-Install all packages from CRAN
-
-``` r
-lapply(
-  package_list, utils::install.packages
-)
-```
-
-Install packages from GitHub
-
-``` r
-# Install R-Ratepol
-remotes::install_github("HOPE-UIB-BIO/R-Ratepol-package")
-
-# Install neotoma2
-remotes::install_github("NeotomaDB/neotoma2")
-```
+Please follow the [pre-workshop instructions](https://ondrejmottl.github.io/APD_R-Ratepol_workshop/pre_workshop.html) to make sure all packages are installed.
 
 ## Attach packages
 
@@ -302,14 +273,14 @@ Here we see for eight samples (500543-500546) their possible ages with each new 
 
 | 500543 | 500544 | 500545 | 500547 | 500548 | 500549 | 500550 | 500546 |
 |:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|
-|  3290  |  3439  |  3494  |  4049  |  4126  |  4256  |  4583  |  4692  |
-|  3409  |  3620  |  3762  |  4196  |  4359  |  4539  |  4814  |  4905  |
-|  3368  |  3539  |  3717  |  4177  |  4956  |  5042  |  5128  |  5156  |
-|  3313  |  3426  |  3539  |  3663  |  3804  |  3919  |  4035  |  4073  |
-|  3413  |  3449  |  3476  |  3698  |  4054  |  4345  |  4636  |  4733  |
-|  3295  |  3376  |  3457  |  3641  |  3881  |  4056  |  4358  |  4384  |
-|  3144  |  3274  |  3403  |  3499  |  3521  |  3540  |  3559  |  3565  |
-|  3183  |  3298  |  3435  |  3647  |  3918  |  4209  |  4533  |  4614  |
+|  3284  |  3393  |  3555  |  3826  |  4188  |  4485  |  4781  |  4880  |
+|  3384  |  3487  |  3542  |  3990  |  4330  |  4641  |  4952  |  5010  |
+|  3489  |  3594  |  3662  |  3993  |  4346  |  4530  |  4618  |  4647  |
+|  3406  |  3441  |  3611  |  4743  |  5153  |  5488  |  5670  |  5698  |
+|  3269  |  3447  |  3625  |  4046  |  4913  |  5156  |  5398  |  5443  |
+|  3269  |  3447  |  3625  |  3878  |  4200  |  4463  |  4726  |  4814  |
+|  3510  |  3600  |  3645  |  3843  |  4107  |  4323  |  4539  |  4611  |
+|  3154  |  3294  |  3586  |  3866  |  4356  |  4386  |  4415  |  4425  |
 
 We can visualise these “possible ages” of each created age model.
 
@@ -414,12 +385,12 @@ head(sel_level_predicted)
 
 | sample_id | depth | age  |
 |:---------:|:-----:|:----:|
-|  500543   |  703  | 3252 |
-|  500544   |  753  | 3387 |
-|  500545   |  803  | 3518 |
-|  500547   |  853  | 3852 |
-|  500548   |  908  | 4186 |
-|  500549   |  953  | 4454 |
+|  500543   |  703  | 3276 |
+|  500544   |  753  | 3403 |
+|  500545   |  803  | 3532 |
+|  500547   |  853  | 3864 |
+|  500548   |  908  | 4205 |
+|  500549   |  953  | 4485 |
 
 We can visualise the median age by drawing a red line. This age is the age that is often reported in publications but in essence it represents multiple age-depth model runs with smaller or larger age uncertainties throughout the pollen record.
 

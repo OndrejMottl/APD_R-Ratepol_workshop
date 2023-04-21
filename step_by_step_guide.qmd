@@ -21,36 +21,7 @@ This workflow should show the full strength of the [*RRatepol package*](https://
 
 ## Install packages
 
-Make a list of packages needed from CRAN
-
-```{r pkg-list, results='hide', warning=FALSE, message=FALSE}
-package_list <-
-  c(
-    "tidyverse", # general data wrangling and visualisation
-    "pander", # nice tables
-    "Bchron", # age-depth modelling
-    "janitor", # string cleaning
-    "remotes" # installing packages from GitHub
-  )
-```
-
-Install all packages from CRAN
-
-```{r pkg-install, eval = FALSE}
-lapply(
-  package_list, utils::install.packages
-)
-```
-
-Install packages from GitHub
-
-```{r pkg-install-gh, eval = FALSE}
-# Install R-Ratepol
-remotes::install_github("HOPE-UIB-BIO/R-Ratepol-package")
-
-# Install neotoma2
-remotes::install_github("NeotomaDB/neotoma2")
-```
+Please follow the [pre-workshop instructions](https://ondrejmottl.github.io/APD_R-Ratepol_workshop/pre_workshop.html) to make sure all packages are installed.
 
 ## Attach packages
 
