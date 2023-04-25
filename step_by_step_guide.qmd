@@ -40,7 +40,8 @@ ggplot2::theme_set(
     ggplot2::theme(
       axis.title = ggplot2::element_text(size = 25),
       axis.text = ggplot2::element_text(size = 15),
-      strip.text = ggplot2::element_text(size = 15)
+      strip.text = ggplot2::element_text(size = 15),
+      panel.grid = ggplot2::element_blank()
     )
 )
 ```
@@ -239,7 +240,7 @@ plot(sel_bchron)
 
 #### Predict ages
 
-Let's first extract posterior ages (i.e. possible ages) from the age-depth model 
+Let's first extract posterior ages (i.e. possible ages) from the age-depth model.  
 
 ```{r age_uncertainties, results='hide', warning=FALSE}
 age_position <-
@@ -256,14 +257,15 @@ colnames(age_uncertainties) <- sel_level$sample_id
 head(age_uncertainties, n = 8)[, 1:8]
 ```
 
-Here we see for eight samples (500543-500546) their possible ages with each new age-depth model run. Each age-depth model is similar but there are differences of tens or hundreds of years.
+Here we see samples (e.g., 500543,500544, 500547,...) and their possible ages (age-sequence) with each model iteration (posterior). Each age-sequence is similar but there are differences of tens or hundreds of years. We will call this *the uncertainty matrix*.
 
 ```{r age_uncertainties_display, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 pander::pandoc.table(head(age_uncertainties, n = 8)[, 1:8])
 ```
-We can visualise these "possible ages" of each created age model.
+We can visualise these "possible ages" (age-sequence) of each iteration.
 
 ```{r age_uncertainties_vis_data}
+# create a data.frame for plotting
 data_age_uncertainties <-
   age_uncertainties %>%
   as.data.frame() %>%
@@ -279,7 +281,7 @@ data_age_uncertainties <-
   )
 ```
 
-Each line is a single potential age-depth model result. Green points represent the radiocarbon dates.
+Each line is a single potential age-depth model iteration (age-sequence). Green points represent the radiocarbon dates. Horizontal lines are depths of our samples.
 
 ```{r age_uncertainties_vis_lines}
 (
@@ -319,7 +321,7 @@ Each line is a single potential age-depth model result. Green points represent t
 )
 ```
 
-We can visualise all age-depth models together as the range of values. Here, each line representing one sampled depth in our record.
+We can visualise all age-depth "possible ages" together as the range of values. Here, each line representing one sampled depth in our record.
 
 ```{r age_uncertainties_vis_boxplot}
 data_age_uncertainties %>%
@@ -503,7 +505,7 @@ RRatepol::plot_roc(data_source = scenario_3)
 
 ### Scenario 4 - Estimating RoC for each level subsampling data and calculating age uncertainties
 
-For RoC analysis, it is important to consider age uncertainties. For each iteration, RRatepol will randomly select one age sequence (*S2O one age-depth model you mean?*) from the uncertainty matrix (*S2O you haven't introduced this concept. What do you mean? There is a jump in information here that is difficult to follow*). 
+For RoC analysis, it is important to consider age uncertainties. For each iteration, RRatepol will randomly select one age-sequence from the uncertainty matrix (see the age-depth modelling section for more info). 
 
 ```{r roc_sc4, results='hide', warning=FALSE, message=FALSE}
 scenario_4 <-

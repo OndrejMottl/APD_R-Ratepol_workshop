@@ -252,7 +252,7 @@ plot(sel_bchron)
 
 #### Predict ages
 
-Let’s first extract posterior ages (i.e. possible ages) from the age-depth model
+Let’s first extract posterior ages (i.e. possible ages) from the age-depth model.
 
 ``` r
 age_position <-
@@ -269,22 +269,23 @@ colnames(age_uncertainties) <- sel_level$sample_id
 head(age_uncertainties, n = 8)[, 1:8]
 ```
 
-Here we see for eight samples (500543-500546) their possible ages with each new age-depth model run. Each age-depth model is similar but there are differences of tens or hundreds of years.
+Here we see samples (e.g., 500543,500544, 500547,…) and their possible ages (age-sequence) with each model iteration (posterior). Each age-sequence is similar but there are differences of tens or hundreds of years. We will call this *the uncertainty matrix*.
 
 | 500543 | 500544 | 500545 | 500547 | 500548 | 500549 | 500550 | 500546 |
 |:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|
-|  3284  |  3393  |  3555  |  3826  |  4188  |  4485  |  4781  |  4880  |
-|  3384  |  3487  |  3542  |  3990  |  4330  |  4641  |  4952  |  5010  |
-|  3489  |  3594  |  3662  |  3993  |  4346  |  4530  |  4618  |  4647  |
-|  3406  |  3441  |  3611  |  4743  |  5153  |  5488  |  5670  |  5698  |
-|  3269  |  3447  |  3625  |  4046  |  4913  |  5156  |  5398  |  5443  |
-|  3269  |  3447  |  3625  |  3878  |  4200  |  4463  |  4726  |  4814  |
-|  3510  |  3600  |  3645  |  3843  |  4107  |  4323  |  4539  |  4611  |
-|  3154  |  3294  |  3586  |  3866  |  4356  |  4386  |  4415  |  4425  |
+|  3266  |  3361  |  3454  |  3919  |  4412  |  4524  |  4744  |  4910  |
+|  3135  |  3314  |  3522  |  3745  |  4014  |  4418  |  4951  |  5157  |
+|  3335  |  3457  |  3552  |  3731  |  3892  |  4129  |  4766  |  4803  |
+|  3138  |  3211  |  3385  |  3662  |  3791  |  4006  |  4251  |  4345  |
+|  3231  |  3452  |  3650  |  3990  |  4408  |  4631  |  4862  |  5032  |
+|  3355  |  3486  |  3660  |  3822  |  3995  |  4137  |  4278  |  4326  |
+|  3382  |  3526  |  3669  |  3795  |  3924  |  4030  |  4136  |  4171  |
+|  3211  |  3383  |  3631  |  4324  |  4445  |  4543  |  4642  |  4674  |
 
-We can visualise these “possible ages” of each created age model.
+We can visualise these “possible ages” (age-sequence) of each iteration.
 
 ``` r
+# create a data.frame for plotting
 data_age_uncertainties <-
   age_uncertainties %>%
   as.data.frame() %>%
@@ -300,7 +301,7 @@ data_age_uncertainties <-
   )
 ```
 
-Each line is a single potential age-depth model result. Green points represent the radiocarbon dates.
+Each line is a single potential age-depth model iteration (age-sequence). Green points represent the radiocarbon dates. Horizontal lines are depths of our samples.
 
 ``` r
 (
@@ -342,7 +343,7 @@ Each line is a single potential age-depth model result. Green points represent t
 
 ![](step_by_step_guide_files/figure-gfm/age_uncertainties_vis_lines-1.png)
 
-We can visualise all age-depth models together as the range of values. Here, each line representing one sampled depth in our record.
+We can visualise all age-depth “possible ages” together as the range of values. Here, each line representing one sampled depth in our record.
 
 ``` r
 data_age_uncertainties %>%
@@ -385,12 +386,12 @@ head(sel_level_predicted)
 
 | sample_id | depth | age  |
 |:---------:|:-----:|:----:|
-|  500543   |  703  | 3276 |
-|  500544   |  753  | 3403 |
-|  500545   |  803  | 3532 |
-|  500547   |  853  | 3864 |
-|  500548   |  908  | 4205 |
-|  500549   |  953  | 4485 |
+|  500543   |  703  | 3278 |
+|  500544   |  753  | 3398 |
+|  500545   |  803  | 3521 |
+|  500547   |  853  | 3840 |
+|  500548   |  908  | 4178 |
+|  500549   |  953  | 4441 |
 
 We can visualise the median age by drawing a red line. This age is the age that is often reported in publications but in essence it represents multiple age-depth model runs with smaller or larger age uncertainties throughout the pollen record.
 
@@ -540,7 +541,7 @@ RRatepol::plot_roc(data_source = scenario_3)
 
 ### Scenario 4 - Estimating RoC for each level subsampling data and calculating age uncertainties
 
-For RoC analysis, it is important to consider age uncertainties. For each iteration, RRatepol will randomly select one age sequence (*S2O one age-depth model you mean?*) from the uncertainty matrix (*S2O you haven’t introduced this concept. What do you mean? There is a jump in information here that is difficult to follow*).
+For RoC analysis, it is important to consider age uncertainties. For each iteration, RRatepol will randomly select one age-sequence from the uncertainty matrix (see the age-depth modelling section for more info).
 
 ``` r
 scenario_4 <-
